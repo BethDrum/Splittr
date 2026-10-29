@@ -1,18 +1,11 @@
 import * as ImagePicker from 'expo-image-picker';
-import * as MediaLibrary from 'expo-media-library';
+import * as MediaLibrary from 'expo-media-library/legacy';
 import { useEffect, useRef, useState } from 'react';
 import { ImageSourcePropType, StyleSheet, View } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { captureRef } from 'react-native-view-shot';
 
-import Button from '@/components/button';
-import CircleButton from '@/components/circle-button';
-import EmojiList from '@/components/emoji-list';
-import EmojiPicker from '@/components/emoji-picker';
-import IconButton from '@/components/icon-button';
-import ImageViewer from '@/components/image-viewer';
+import Card from '@/components/card';
 
-import EmojiSticker from '@/components/emoji-sticker';
 
 const PlaceholderImage = require('@/assets/images/background-image.jpg');
 
@@ -22,7 +15,7 @@ export default function Index() {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [pickedEmoji, setPickedEmoji] = useState<ImageSourcePropType | undefined>(undefined)
   const [permissionResponse, requestPermission] = ImagePicker.useMediaLibraryPermissions();
-  const imageRef = useRef<View>(null)
+  const imageRef = useRef<any>(null);
 
   /*Image picker code */
   const pickImageAsync = async () => {
@@ -55,7 +48,7 @@ export default function Index() {
 
   const onSaveImageAsync = async () => {
     try {
-      const localUri = await captureRef(imageRef, {
+      const localUri = await captureRef(imageRef.current as any, {
         height: 440,
         quality: 1,
       });
@@ -76,13 +69,19 @@ export default function Index() {
   }, []);
 
   return (
-    <GestureHandlerRootView style={styles.container}>
+    // <GestureHandlerRootView style={styles.container}>
       <View style={styles.container}>
-        <View ref={imageRef} collapsable={false}>
-          <ImageViewer imgSource={PlaceholderImage} selectedImage={selectedImage} />
-          {pickedEmoji && <EmojiSticker imageSize={40} stickerSource={pickedEmoji} />}
+        <View ref={imageRef} style={styles.imageContainer} collapsable={false}>
+          <Card onPress={pickImageAsync}/>
+          {/* <ImageViewer imgSource={PlaceholderImage} selectedImage={selectedImage} /> */}
+          {/* {pickedEmoji && <EmojiSticker imageSize={40} stickerSource={pickedEmoji} />} */}
         </View>
-        {showAppOptions ? (
+        <View style={styles.listOfCards}>
+          <Card onPress={pickImageAsync}/>
+          <Card onPress={pickImageAsync}/>
+          <Card onPress={pickImageAsync}/>
+        </View>
+        {/* {showAppOptions ? (
           //options for adding emoji - has reset and save with according icons
           <View style={styles.optionsContainer}>
             <View style={styles.optionsRow}>
@@ -99,34 +98,41 @@ export default function Index() {
         )}
         <EmojiPicker isVisable={isModalVisible} onClose={onModalClose}>
           <EmojiList onSelect={setPickedEmoji} onCloseModal={onModalClose} />
-        </EmojiPicker>
+        </EmojiPicker> */}
       </View>
-    </GestureHandlerRootView>
+    // </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#25292e',
+    backgroundColor: '#FFFDF2',
     alignItems: "center",
   },
-  text: {
-    color: '#fff'
+  listOfCards: {
+    flex: 2,
+    width: '90%',
+    marginTop: '5%',
   },
   imageContainer: {
-    flex: 3/4,
+    flex: 1,
+    width: '90%',
   },
-  footerContainer: {
-    flex: 1/3,
-    alignItems: 'center',
-  },
-  optionsContainer: {
-    position: 'absolute',
-    bottom: 80,
-  },
-  optionsRow: {
-    alignItems: 'center',
-    flexDirection: 'row',
-  },
+  
+  // text: {
+  //   color: '#fff'
+  // },
+  // footerContainer: {
+  //   flex: 1/3,
+  //   alignItems: 'center',
+  // },
+  // optionsContainer: {
+  //   position: 'absolute',
+  //   bottom: 80,
+  // },
+  // optionsRow: {
+  //   alignItems: 'center',
+  //   flexDirection: 'row',
+  // },
 });
