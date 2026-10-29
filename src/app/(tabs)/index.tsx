@@ -1,5 +1,6 @@
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library/legacy';
+import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { ImageSourcePropType, StyleSheet, View } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
@@ -10,6 +11,8 @@ import Card from '@/components/card';
 const PlaceholderImage = require('@/assets/images/background-image.jpg');
 
 export default function Index() {
+  const router = useRouter();
+
   const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
   const [showAppOptions, setShowAppOptions] = useState<boolean>(false);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
@@ -72,7 +75,7 @@ export default function Index() {
     // <GestureHandlerRootView style={styles.container}>
       <View style={styles.container}>
         <View ref={imageRef} style={styles.imageContainer} collapsable={false}>
-          <Card onPress={pickImageAsync}/>
+          <Card theme="primary" onPress={() => router.navigate('/(tabs)/selectPerson')}/>
           {/* <ImageViewer imgSource={PlaceholderImage} selectedImage={selectedImage} /> */}
           {/* {pickedEmoji && <EmojiSticker imageSize={40} stickerSource={pickedEmoji} />} */}
         </View>
