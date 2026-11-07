@@ -1,10 +1,10 @@
 import { recognizeText } from '@dariyd/react-native-text-recognition';
 import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
-import { Button, ScrollView, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import Button from '@/components/button';
 import RecieptSection from '@/components/recieptSection';
-
 
 export default function viewReciept() {
     const [recieptItems, setRecieptItems] = useState<{ food: string; cost: string }[]>([]);
@@ -51,38 +51,74 @@ export default function viewReciept() {
         const food = array.slice(0, lengthOfText);
         const money = array.slice(lengthOfText);
 
-        //print food with money next to
-        //for each in length of array halved, print food[i] and money[i]
-        for (let i=0; i< lengthOfText; i++){
-          console.log(food[i], money[i]);
-        }
-
+        //add array food & cost to items list and set recieptItems to that
         const items = food.map((item, index) => ({
           food: item,
           cost: money[index],
         }));
 
         setRecieptItems(items);
-
-        alert("done")
-
+        
     } catch (error) {
         console.error('OCR Error:', error);
     }
     };
 
   return (
-    <View style={{ flex: 1, padding: 20 }}>
-      <Button title="Add a new recipt" onPress={scanReceipt}/>
+    <View style={styles.main}>
+      <Text style={styles.textPrimary}>PLEASE CONFIRM SELECTION</Text>
 
       <ScrollView style={{ marginTop: 20 }}>
-          <View>
+          <View style={styles.recieptOutput}>
             {recieptItems.map((item, index) => (
             <RecieptSection key={index} food={item.food} cost={item.cost} />
             ))}
           </View>
       </ScrollView>
+
+      <Button theme="confirm" label="CONFIRM" onPress={scanReceipt}/>
+      <Button theme="edit" label="EDIT" onPress={scanReceipt}/>
+      <Button theme="back" label="RETURN TO HOME" onPress={scanReceipt}/>
+      <View style={styles.end}>
+
+      </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  main: {
+    backgroundColor: '#D4E0F3',
+    height: '100%',
+  },
+  recieptOutput: {
+    marginLeft: '5%',
+    marginRight: '5%'
+  },
+  end: {
+    marginBottom: 1,
+  },
+  textPrimary: {
+    color: '#4F4F4F',
+    fontFamily: 'lucida grande',
+    fontWeight: 'bold',
+    fontSize: 30,
+    padding: '5%',
+    alignSelf: 'center',
+  },
+  // container: {
+  //   flex: 1,
+  //   backgroundColor: '#FFFDF2',
+  //   alignItems: "center",
+  // },
+  // listOfCards: {
+  //   flex: 2,
+  //   width: '90%',
+  //   marginTop: '5%',
+  // },
+  // imageContainer: {
+  //   flex: 1,
+  //   width: '90%',
+  // },
+});
 

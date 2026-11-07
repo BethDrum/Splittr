@@ -1,31 +1,52 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 type Props = {
     label: string;
-    theme?: 'primary';
+    theme?: 'confirm' | 'edit' | 'back';
     onPress?: () => void;
 };
 
 export default function Button({ label, theme, onPress }: Props) {
-    if (theme === 'primary')
-    return(
+    if (theme === 'confirm')
+        return(
         <View
             style={[
-                styles.buttonContainer,
-                { borderWidth: 4, borderColor: '#ffd33d', borderRadius: 18 },
+                styles.buttonWrapper,
+                { backgroundColor: '#A8B396'},
             ]}>
-            <Pressable
-                style={[styles.button, { backgroundColor: '#fff' }]} onPress={onPress}>
-                <FontAwesome name="picture-o" size={18} color="#25292e" style={styles.buttonIcon} />
-                <Text style={[styles.buttonLabel, { color: '#25292e' }]}>{label}</Text>
+            <Pressable onPress={onPress}>
+                <Text style={styles.buttonLabel}>{label}</Text>
             </Pressable>
         </View>
-    );
+    )
+    else if (theme === 'edit')
+        return(
+            <View
+            style={[
+                styles.buttonWrapper,
+                { backgroundColor: '#EBACAD'},
+            ]}>
+            <Pressable onPress={onPress}>
+                <Text style={styles.buttonLabel}>{label}</Text>
+            </Pressable>
+        </View>
+    )
+    else if (theme === 'back')
+        return(
+            <View
+            style={[
+                styles.buttonWrapper,
+                { backgroundColor: '#C8D3B7'},
+            ]}>
+            <Pressable onPress={onPress}>
+                <Text style={styles.buttonLabel}>{label}</Text>
+            </Pressable>
+        </View>
+    )
 
     return (
-    <View style={styles.buttonContainer}>
-      <Pressable style={styles.button} onPress={onPress}>
+    <View style={styles.buttonWrapper}>
+      <Pressable onPress={onPress}>
         <Text style={styles.buttonLabel}>{label}</Text>
       </Pressable>
     </View>
@@ -33,28 +54,23 @@ export default function Button({ label, theme, onPress }: Props) {
 }
 
 const styles = StyleSheet.create({
-    buttonContainer: {
-        width: 320,
+    buttonWrapper: {
+        width: '90%',
         height: 68,
         marginHorizontal: 20,
+        alignSelf: 'center',
         alignItems: 'center',
         justifyContent: 'center',
         padding: 3,
-        marginBottom: 10,
-    },
-    button: {
         borderRadius: 10,
-        width: '100%',
-        height: '100%',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexDirection: 'row',
-    },
-    buttonIcon: {
-        paddingRight: 8,
+        margin: 5,
     },
     buttonLabel: {
-        color: '#fff',
-        fontSize: 16,
+        color: '#FFFFFF',
+        fontFamily: 'lucida grande',
+        fontWeight: 'bold',
+        fontSize: 25,
+        padding: '2%', 
+        paddingRight: '5%',
     },
 });

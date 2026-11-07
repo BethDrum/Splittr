@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#FFFDF2',
         margin: 5,
-        borderRadius: 15,
+        borderRadius: 10,
         color: '#4F4F4F',
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -38,13 +38,6 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '100%',
         alignSelf: 'flex-start',
-    },
-    textPrimary: {
-        color: '#FFFDF2',
-        fontFamily: 'lucida grande',
-        fontWeight: 'bold',
-        fontSize: 30,
-        padding: '5%',
     },
     food: {
         color: '#4F4F4F',
