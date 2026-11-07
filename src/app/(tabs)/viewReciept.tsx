@@ -1,8 +1,14 @@
 import { recognizeText } from '@dariyd/react-native-text-recognition';
 import * as ImagePicker from 'expo-image-picker';
+import { useState } from 'react';
 import { Button, ScrollView, View } from 'react-native';
 
+import RecieptSection from '@/components/recieptSection';
+
+
 export default function viewReciept() {
+    const [recieptItems, setRecieptItems] = useState<{ food: string; cost: string }[]>([]);
+    
     const scanReceipt = async () => {
     try {
       //get image from library
@@ -51,8 +57,15 @@ export default function viewReciept() {
           console.log(food[i], money[i]);
         }
 
+        const items = food.map((item, index) => ({
+          food: item,
+          cost: money[index],
+        }));
+
+        setRecieptItems(items);
+
         alert("done")
-        
+
     } catch (error) {
         console.error('OCR Error:', error);
     }
@@ -63,8 +76,13 @@ export default function viewReciept() {
       <Button title="Add a new recipt" onPress={scanReceipt}/>
 
       <ScrollView style={{ marginTop: 20 }}>
-        {/* <Text>{result}</Text> */}
+          <View>
+            {recieptItems.map((item, index) => (
+            <RecieptSection key={index} food={item.food} cost={item.cost} />
+            ))}
+          </View>
       </ScrollView>
     </View>
   );
 }
+

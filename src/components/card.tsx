@@ -19,7 +19,6 @@ export default function Card({ theme, onPress }: Props) {
             </View>
         </View>
     );
-
     return (
     <View style={styles.cardWrapper}>
         <Pressable style={styles.secondaryCard} onPress={onPress}>
