@@ -28,7 +28,7 @@ export default function TabLayout() {
         }} 
       />
       <Tabs.Screen 
-        name ="selectPerson"
+        name ="viewReciept"
         options={{ 
           title: 'About', 
           tabBarIcon: ({ color, focused }) => (
