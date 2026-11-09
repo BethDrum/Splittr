@@ -75,7 +75,7 @@ export default function Index() {
     // <GestureHandlerRootView style={styles.container}>
       <View style={styles.container}>
         <View ref={imageRef} style={styles.imageContainer} collapsable={false}>
-          <Card theme="primary" onPress={() => router.navigate('/(tabs)/selectPerson')}/>
+          <Card theme="primary" onPress={() => router.navigate('/(tabs)/viewReciept')}/>
           {/* <ImageViewer imgSource={PlaceholderImage} selectedImage={selectedImage} /> */}
           {/* {pickedEmoji && <EmojiSticker imageSize={40} stickerSource={pickedEmoji} />} */}
         </View>
