@@ -36,6 +36,11 @@ export default function TabLayout() {
           ),
         }}
       />
+
+      <Tabs.Screen name="splitReciept"
+      options={{
+        title: 'split'
+      }} />
     </Tabs>
   );
 }

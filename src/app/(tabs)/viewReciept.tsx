@@ -1,9 +1,9 @@
 import { recognizeText } from '@dariyd/react-native-text-recognition';
 import * as ImagePicker from 'expo-image-picker';
-import { useCallback, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useCallback, useRef, useState, } from 'react';
+import { ScrollView, StyleSheet, Text, View, } from 'react-native';
 import { SwipeableMethods } from 'react-native-gesture-handler/lib/typescript/components/ReanimatedSwipeable';
-
 
 import Button from '@/components/button';
 import RecieptSection from '@/components/recieptSection';
@@ -12,7 +12,8 @@ import SwipeGesture from '@/animationControl/swipeGesture';
 
 export default function viewReciept() {
     const [recieptItems, setRecieptItems] = useState<{ id: string; food: string; cost: string }[]>([]);
-    
+    const router = useRouter();
+
     const scanReceipt = async () => {
     try {
       //get image from library
@@ -105,7 +106,7 @@ export default function viewReciept() {
           </View>
       </ScrollView>
 
-      <Button theme="confirm" label="CONFIRM" onPress={scanReceipt}/>
+      <Button theme="confirm" label="CONFIRM" onPress={() => router.push('/(tabs)/splitReciept')}/>
       <Button theme="edit" label="EDIT" onPress={scanReceipt}/>
       <Button theme="back" label="RETURN TO HOME" onPress={scanReceipt}/>
       <View style={styles.end}>
