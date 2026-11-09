@@ -24,7 +24,6 @@ export default function recieptSection({food, cost}: iRecieptSection) {
 
 const styles = StyleSheet.create({
     mainCard: {
-        width: '100%',
         flex: 1,
         backgroundColor: '#FFFDF2',
         margin: 5,

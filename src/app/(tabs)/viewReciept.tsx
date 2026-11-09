@@ -1,13 +1,17 @@
 import { recognizeText } from '@dariyd/react-native-text-recognition';
 import * as ImagePicker from 'expo-image-picker';
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SwipeableMethods } from 'react-native-gesture-handler/lib/typescript/components/ReanimatedSwipeable';
+
 
 import Button from '@/components/button';
 import RecieptSection from '@/components/recieptSection';
 
+import SwipeGesture from '@/animationControl/swipeGesture';
+
 export default function viewReciept() {
-    const [recieptItems, setRecieptItems] = useState<{ food: string; cost: string }[]>([]);
+    const [recieptItems, setRecieptItems] = useState<{ id: string; food: string; cost: string }[]>([]);
     
     const scanReceipt = async () => {
     try {
@@ -53,25 +57,50 @@ export default function viewReciept() {
 
         //add array food & cost to items list and set recieptItems to that
         const items = food.map((item, index) => ({
+          id: Math.random().toString(),
           food: item,
           cost: money[index],
         }));
 
         setRecieptItems(items);
-        
+
     } catch (error) {
         console.error('OCR Error:', error);
     }
+  };
+
+    //delete function
+    const handleDelete = (id: string) => {
+      setRecieptItems((current) =>
+        current.filter(item => item.id !== id)
+      );
     };
+
+    //open
+    const openRef = useRef<SwipeableMethods | null>(null);
+
+    const registertOpen = useCallback(
+      (row: SwipeableMethods | null) => {
+        if (openRef.current && openRef.current !== row){
+          openRef.current.close()
+        }
+        openRef.current = row;
+      },
+      []
+    );
+
+  
 
   return (
     <View style={styles.main}>
       <Text style={styles.textPrimary}>PLEASE CONFIRM SELECTION</Text>
 
       <ScrollView style={{ marginTop: 20 }}>
-          <View style={styles.recieptOutput}>
+          <View style={[styles.recieptOutput]}>
             {recieptItems.map((item, index) => (
-            <RecieptSection key={index} food={item.food} cost={item.cost} />
+            <SwipeGesture key={item.id} onRemove={() => handleDelete(item.id)} onOpen={registertOpen}>
+              <RecieptSection food={item.food} cost={item.cost} />
+            </SwipeGesture>
             ))}
           </View>
       </ScrollView>
@@ -86,14 +115,14 @@ export default function viewReciept() {
   );
 }
 
+
 const styles = StyleSheet.create({
   main: {
     backgroundColor: '#D4E0F3',
     height: '100%',
   },
   recieptOutput: {
-    marginLeft: '5%',
-    marginRight: '5%'
+    marginHorizontal: '5%',
   },
   end: {
     marginBottom: 1,
@@ -106,19 +135,4 @@ const styles = StyleSheet.create({
     padding: '5%',
     alignSelf: 'center',
   },
-  // container: {
-  //   flex: 1,
-  //   backgroundColor: '#FFFDF2',
-  //   alignItems: "center",
-  // },
-  // listOfCards: {
-  //   flex: 2,
-  //   width: '90%',
-  //   marginTop: '5%',
-  // },
-  // imageContainer: {
-  //   flex: 1,
-  //   width: '90%',
-  // },
 });
-
