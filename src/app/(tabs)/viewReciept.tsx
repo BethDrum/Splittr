@@ -90,6 +90,13 @@ export default function viewReciept() {
       []
     );
 
+    //go to split reciept screen with information
+    const goToSplitScreen = () => {
+      // navigation.navigate('splitReciept', {recieptItems: recieptItems });
+      console.log('trying to nav')
+      router.push({pathname: '/(tabs)/splitReciept', params: {recieptItems: JSON.stringify(recieptItems)}})
+    };
+
   
 
   return (
@@ -106,7 +113,7 @@ export default function viewReciept() {
           </View>
       </ScrollView>
 
-      <Button theme="confirm" label="CONFIRM" onPress={() => router.push('/(tabs)/splitReciept')}/>
+      <Button theme="confirm" label="CONFIRM" onPress={goToSplitScreen}/>
       <Button theme="edit" label="EDIT" onPress={scanReceipt}/>
       <Button theme="back" label="RETURN TO HOME" onPress={scanReceipt}/>
       <View style={styles.end}>
