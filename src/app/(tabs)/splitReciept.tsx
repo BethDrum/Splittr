@@ -1,5 +1,5 @@
-import { useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
@@ -16,6 +16,12 @@ export default function App() {
   const total: number[] = Array(4)
   //index
   const [index, setIndex ]= useState(0);
+  //for await to function
+  const resolver = useRef<(() => void) | null>(null);
+  //for card to display
+  const [currentCard, setCurrentCard] = useState<number | null>(null);
+  //for router to take to next page on end
+  const router = useRouter();
 
   //recieve data
   const { recieptItems } = useLocalSearchParams();
@@ -32,19 +38,65 @@ export default function App() {
       scale.value = withSpring(isActive ? 1.05 : 1);
   }, [isActive]);
 
+  //add to cost to the total cost and initiate next card
   const assignDrop = (dropNumber: number, index: number) =>{
-    //log
-
-    //remove pound sign
-
+    console.log('dropping', index ,'in', dropNumber);
     //current cost + to total of that number
     total[dropNumber] = total[dropNumber] + parseFloat(items[index].cost.substring(1));
 
     //log total
-    console.log(parseFloat(items[index].cost.substring(1)));
+    // console.log(parseFloat(items[index].cost.substring(1)));
     setIndex(current => current + 1);
-    console.log(total[dropNumber])
-  }
+    // console.log(total[dropNumber]);
+    
+    //signal that the card has been dropped and the next can be generated
+    if (resolver.current) {
+      resolver.current();
+      resolver.current = null;
+    }
+
+    setCurrentCard(null)
+  };
+
+  //display the correcrt card
+  const dispCard = (index: number | null) => {
+    setCurrentCard(index);
+  };
+
+  //function to fuflil resolver promise and comtinue running process
+  const callNext = () => {
+    return new Promise<void>((resolve) => {
+      resolver.current = resolve;
+    });
+  } ;
+
+  //go to the share page and send total values
+  const goToShareScreen = () => {
+    console.log('moving to share screen')
+    router.push({pathname: '/(tabs)/shareReciept', params: {totals: JSON.stringify(total)}})
+  };
+
+  //function that controls all the running
+  const run = async () => {
+    const totalLen = Math.ceil(items.length)
+    for (let i=0; i<totalLen; i++){
+      console.log('run', i)
+      //display current card
+      dispCard(i)
+      //wait for the card to be dropped into the correct section
+      await callNext();
+      setCurrentCard(null);
+      //small delay to render removal
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    //go to next page once all items are added
+    goToShareScreen();
+  };
+
+
+  useEffect(() => {
+      run();
+    }, []);
 
 
   return (
@@ -52,6 +104,7 @@ export default function App() {
       <DropProvider>
         <View style={{flex: 1}}>
         <View style={styles.wrap}>
+          {/* 4 sections for the draggable (reciept) section */}
           <Droppable
             onDrop={() => assignDrop(1, index)} style={{flex: 1, backgroundColor: '#C0DFF7'}}
             onActiveChange={(active) => setIsActive(active)}
@@ -110,12 +163,13 @@ export default function App() {
             </Droppable>
           
           {/* draggable reciept date */}
+
+          {currentCard !== null && (
+            <Draggable data={currentCard} style={styles.drag}>
+              <Text style={styles.recieptText}>{items[index].food}............ {items[index].cost} </Text>
+            </Draggable>
+          )}
           </View>
-            {items.map((item,) => (
-              <Draggable data={index} style={styles.drag}>
-                <Text style={styles.recieptText}>{item.food}............ {item.cost} </Text>
-              </Draggable>
-            ))};
         </View>
       </DropProvider>
     </GestureHandlerRootView>
@@ -136,20 +190,24 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   drag: {
+    //general styling
     padding: 20, 
     backgroundColor: "#FFFDF2", 
     position: 'absolute',
-    top: '50%',
-    left: '50%',
-    height: 100,
-    marginLeft: -100,
-    marginTop: -50,   
     borderRadius: 9,
-    justifyContent: 'center',
-    alignItems: 'center',
+    // position
+    // justifyContent: 'center',
+    // alignItems: 'center',
+     transform: [
+      { translateX: -150 }, // half width
+      { translateY: -100 }, // half height
+    ],
     zIndex: 1000,
-    elevation: 10,
-    alignSelf: 'center',
+    marginHorizontal: '20%',
+    marginVertical: '-5%',
+    // elevation: 1000,
+    // alignSelf: 'center',
+    // marginTop: '50%'
   },
   text: {
     color: '#4F4F4F',
@@ -163,7 +221,7 @@ const styles = StyleSheet.create({
     color: '#4F4F4F',
     fontFamily: 'lucida grande',
     fontWeight: 'bold',
-    fontSize: 20,
+    fontSize: 25,
     padding: 5,
     alignSelf: 'center',
   }

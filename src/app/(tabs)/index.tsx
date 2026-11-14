@@ -1,9 +1,5 @@
-import * as ImagePicker from 'expo-image-picker';
-import * as MediaLibrary from 'expo-media-library/legacy';
 import { useRouter } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
-import { ImageSourcePropType, StyleSheet, View } from 'react-native';
-import { captureRef } from 'react-native-view-shot';
+import { StyleSheet, View } from 'react-native';
 
 import Card from '@/components/card';
 
@@ -13,76 +9,22 @@ const PlaceholderImage = require('@/assets/images/background-image.jpg');
 export default function Index() {
   const router = useRouter();
 
-  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
-  const [showAppOptions, setShowAppOptions] = useState<boolean>(false);
-  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-  const [pickedEmoji, setPickedEmoji] = useState<ImageSourcePropType | undefined>(undefined)
-  const [permissionResponse, requestPermission] = ImagePicker.useMediaLibraryPermissions();
-  const imageRef = useRef<any>(null);
-
-  /*Image picker code */
-  const pickImageAsync = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      /*Let user crop image on selection */
-      allowsEditing: true,
-      quality: 1,
-    });
-
-    if (!result.canceled){
-      setSelectedImage(result.assets[0].uri);
-      setShowAppOptions(true);
-    } else { 
-      alert('You did not select any image.');
-    }
-  };
-
-  const onReset = () => {
-    setShowAppOptions(false);
-  };
-
-  const onAddSticker = () => {
-    setIsModalVisible(true);
-  };
-
-  const onModalClose = () => {
-    setIsModalVisible(false);
-  };
-
-  const onSaveImageAsync = async () => {
-    try {
-      const localUri = await captureRef(imageRef.current as any, {
-        height: 440,
-        quality: 1,
-      });
-
-      await MediaLibrary.saveToLibraryAsync(localUri);
-      if (localUri) {
-        alert('Saved!');
-      }
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  useEffect(() => {
-    if (!permissionResponse?.granted){
-      requestPermission();
-    }
-  }, []);
+  const goToViewReciept = () => {
+    router.push({pathname: '/(tabs)/viewReciept'});
+  }
 
   return (
     // <GestureHandlerRootView style={styles.container}>
       <View style={styles.container}>
-        <View ref={imageRef} style={styles.imageContainer} collapsable={false}>
-          <Card theme="primary" onPress={() => router.navigate('/(tabs)/viewReciept')}/>
+        <View style={styles.imageContainer} collapsable={false}>
+          <Card theme="primary" onPress={goToViewReciept}/>
           {/* <ImageViewer imgSource={PlaceholderImage} selectedImage={selectedImage} /> */}
           {/* {pickedEmoji && <EmojiSticker imageSize={40} stickerSource={pickedEmoji} />} */}
         </View>
         <View style={styles.listOfCards}>
-          <Card onPress={pickImageAsync}/>
-          <Card onPress={pickImageAsync}/>
-          <Card onPress={pickImageAsync}/>
+          <Card onPress={() => console.log('pressed')}/>
+          <Card onPress={() => console.log('pressed')}/>
+          <Card onPress={() => console.log('pressed')}/>
         </View>
         {/* {showAppOptions ? (
           //options for adding emoji - has reset and save with according icons
@@ -99,9 +41,7 @@ export default function Index() {
             <Button theme="primary" label="Use this photo" onPress={() => setShowAppOptions(true)}/>
           </View>
         )}
-        <EmojiPicker isVisable={isModalVisible} onClose={onModalClose}>
-          <EmojiList onSelect={setPickedEmoji} onCloseModal={onModalClose} />
-        </EmojiPicker> */}
+ */}
       </View>
     // </GestureHandlerRootView>
   );

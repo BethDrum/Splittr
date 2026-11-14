@@ -1,7 +1,7 @@
 import { recognizeText } from '@dariyd/react-native-text-recognition';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
-import { useCallback, useRef, useState, } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View, } from 'react-native';
 import { SwipeableMethods } from 'react-native-gesture-handler/lib/typescript/components/ReanimatedSwipeable';
 
@@ -11,8 +11,14 @@ import RecieptSection from '@/components/recieptSection';
 import SwipeGesture from '@/animationControl/swipeGesture';
 
 export default function viewReciept() {
-    const [recieptItems, setRecieptItems] = useState<{ id: string; food: string; cost: string }[]>([]);
-    const router = useRouter();
+  const [recieptItems, setRecieptItems] = useState<{ id: string; food: string; cost: string }[]>([]);
+  const router = useRouter();
+
+  //immediatly run when page is loaded
+    useEffect(() => {
+      console.log('running');
+      scanReceipt();
+    }, []);
 
     const scanReceipt = async () => {
     try {
