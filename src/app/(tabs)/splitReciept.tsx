@@ -12,8 +12,8 @@ type ReceiptItem = {
 };
 
 export default function App() {
-  //setup empty varaibles for all people
-  const total: number[] = Array(4)
+  //total for all passes - currently just for 4
+  const total = useRef<number[]>([0, 0, 0, 0]);
   //index
   const [index, setIndex ]= useState(0);
   //for await to function
@@ -42,8 +42,9 @@ export default function App() {
   const assignDrop = (dropNumber: number, index: number) =>{
     console.log('dropping', index ,'in', dropNumber);
     //current cost + to total of that number
-    total[dropNumber] = total[dropNumber] + parseFloat(items[index].cost.substring(1));
-
+    total.current[dropNumber] = total.current[dropNumber] + parseFloat(items[index].cost.substring(1));
+    console.log(items[index].cost)
+    console.log(total)
     //log total
     // console.log(parseFloat(items[index].cost.substring(1)));
     setIndex(current => current + 1);
@@ -73,12 +74,12 @@ export default function App() {
   //go to the share page and send total values
   const goToShareScreen = () => {
     console.log('moving to share screen')
-    router.push({pathname: '/(tabs)/shareReciept', params: {totals: JSON.stringify(total)}})
+    router.push({pathname: '/(tabs)/shareReciept', params: {totals: JSON.stringify(total.current)}})
   };
 
   //function that controls all the running
   const run = async () => {
-    const totalLen = Math.ceil(items.length)
+    const totalLen = Math.ceil(items.length);
     for (let i=0; i<totalLen; i++){
       console.log('run', i)
       //display current card
@@ -106,7 +107,7 @@ export default function App() {
         <View style={styles.wrap}>
           {/* 4 sections for the draggable (reciept) section */}
           <Droppable
-            onDrop={() => assignDrop(1, index)} style={{flex: 1, backgroundColor: '#C0DFF7'}}
+            onDrop={() => assignDrop(0, index)} style={{flex: 1, backgroundColor: '#C0DFF7'}}
             onActiveChange={(active) => setIsActive(active)}
             activeStyle={{
                 backgroundColor: "rgba(88, 166, 255, 0.1)",
@@ -119,7 +120,7 @@ export default function App() {
             </Animated.View>
           </Droppable>
           <Droppable
-            onDrop={() => assignDrop(2, index)} style={{flex: 1, backgroundColor: '#C8D3B7'}}
+            onDrop={() => assignDrop(1, index)} style={{flex: 1, backgroundColor: '#C8D3B7'}}
             onActiveChange={(active) => setIsActive(active)}
             activeStyle={{
                 backgroundColor: "rgba(88, 166, 255, 0.1)",
@@ -135,7 +136,7 @@ export default function App() {
         <View style={styles.wrap}>
 
           <Droppable
-            onDrop={() => assignDrop(3, index)} style={{flex: 1, backgroundColor: '#EBBCDD'}}
+            onDrop={() => assignDrop(2, index)} style={{flex: 1, backgroundColor: '#EBBCDD'}}
             onActiveChange={(active) => setIsActive(active)}
             activeStyle={{
                 backgroundColor: "rgba(88, 166, 255, 0.1)",
@@ -149,7 +150,7 @@ export default function App() {
           </Droppable>
 
           <Droppable
-          onDrop={() => assignDrop(4, index)} style={{flex: 1, backgroundColor: '#EBE3B1'}}
+          onDrop={() => assignDrop(3, index)} style={{flex: 1, backgroundColor: '#EBE3B1'}}
           onActiveChange={(active) => setIsActive(active)}
           activeStyle={{
               backgroundColor: "rgba(88, 166, 255, 0.1)",
@@ -166,7 +167,7 @@ export default function App() {
 
           {currentCard !== null && (
             <Draggable data={currentCard} style={styles.drag}>
-              <Text style={styles.recieptText}>{items[index].food}............ {items[index].cost} </Text>
+              <Text style={styles.recieptText}>{items[currentCard].food}............ {items[currentCard].cost} </Text>
             </Draggable>
           )}
           </View>

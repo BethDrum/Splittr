@@ -3,9 +3,6 @@ import { StyleSheet, View } from 'react-native';
 
 import Card from '@/components/card';
 
-
-const PlaceholderImage = require('@/assets/images/background-image.jpg');
-
 export default function Index() {
   const router = useRouter();
 
@@ -16,6 +13,7 @@ export default function Index() {
   return (
     // <GestureHandlerRootView style={styles.container}>
       <View style={styles.container}>
+        <View style={{marginTop: '5%'}}></View>
         <View style={styles.imageContainer} collapsable={false}>
           <Card theme="primary" onPress={goToViewReciept}/>
           {/* <ImageViewer imgSource={PlaceholderImage} selectedImage={selectedImage} /> */}

@@ -9,6 +9,7 @@ import Button from '@/components/button';
 import RecieptSection from '@/components/recieptSection';
 
 import SwipeGesture from '@/animationControl/swipeGesture';
+import ModalReciept from '@/components/modalAddNewReciept';
 
 export default function viewReciept() {
   const [recieptItems, setRecieptItems] = useState<{ id: string; food: string; cost: string }[]>([]);
@@ -20,6 +21,7 @@ export default function viewReciept() {
       scanReceipt();
     }, []);
 
+    //scan the reciept and translate
     const scanReceipt = async () => {
     try {
       //get image from library
@@ -83,10 +85,10 @@ export default function viewReciept() {
       );
     };
 
-    //open
+    //open for delete
     const openRef = useRef<SwipeableMethods | null>(null);
 
-    const registertOpen = useCallback(
+    const registerOpen = useCallback(
       (row: SwipeableMethods | null) => {
         if (openRef.current && openRef.current !== row){
           openRef.current.close()
@@ -96,32 +98,55 @@ export default function viewReciept() {
       []
     );
 
+    //add a new block
+    const addNew = (newName: string, newCost: number) => {
+      const alteredCost = String(`£${newCost}`)
+      //take in information
+      const info = {id: Math.random().toString(), food: newName, cost: alteredCost}
+
+      console.log(info)
+      //add to reciept items
+      setRecieptItems(prev => [...prev, info])
+      console.log("running")
+    }
+
     //go to split reciept screen with information
     const goToSplitScreen = () => {
+      console.log(recieptItems)
       // navigation.navigate('splitReciept', {recieptItems: recieptItems });
       console.log('trying to nav')
       router.push({pathname: '/(tabs)/splitReciept', params: {recieptItems: JSON.stringify(recieptItems)}})
     };
 
-  
+    //ensure reciept updates
+    useEffect(() => {
+      console.log('reciept updated')
+    }, [recieptItems]);
+
+  //back button
+  //accessability
+  //user testing 
 
   return (
     <View style={styles.main}>
+      <View style={{marginTop: '5%'}}></View>
       <Text style={styles.textPrimary}>PLEASE CONFIRM SELECTION</Text>
 
       <ScrollView style={{ marginTop: 20 }}>
           <View style={[styles.recieptOutput]}>
             {recieptItems.map((item, index) => (
-            <SwipeGesture key={item.id} onRemove={() => handleDelete(item.id)} onOpen={registertOpen}>
+            <SwipeGesture key={item.id} onRemove={() => handleDelete(item.id)} onOpen={registerOpen}>
               <RecieptSection food={item.food} cost={item.cost} />
             </SwipeGesture>
             ))}
           </View>
       </ScrollView>
 
-      <Button theme="confirm" label="CONFIRM" onPress={goToSplitScreen}/>
-      <Button theme="edit" label="EDIT" onPress={scanReceipt}/>
-      <Button theme="back" label="RETURN TO HOME" onPress={scanReceipt}/>
+      <View style={styles.buttonSec}>
+        <Button theme="confirm" label="CONFIRM" onPress={goToSplitScreen}/>
+        <ModalReciept onSubmitObject={(newName, newCost) => addNew(newName, newCost)}/>
+        <Button theme="back" label="RETURN TO HOME" onPress={scanReceipt}/>
+      </View>
       <View style={styles.end}>
 
       </View>
@@ -149,4 +174,7 @@ const styles = StyleSheet.create({
     padding: '5%',
     alignSelf: 'center',
   },
+  buttonSec: {
+    minHeight: '25%',
+  }
 });

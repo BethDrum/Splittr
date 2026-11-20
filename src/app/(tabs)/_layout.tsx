@@ -11,6 +11,7 @@ export default function TabLayout() {
           backgroundColor: '#FFFDF2',
         },
         headerShadowVisible: false,
+        headerShown: false,
         headerTintColor: '#fff',
         tabBarStyle: {
           backgroundColor: '#faf6e2',
@@ -40,6 +41,16 @@ export default function TabLayout() {
       <Tabs.Screen name="splitReciept"
       options={{
         title: 'split'
+      }} />
+
+      {/* <Tabs.Screen name="shareReciept"
+      options={{
+        title: 'share'
+      }} /> */}
+
+      <Tabs.Screen name="setup"
+      options={{
+        title: 'setup'
       }} />
     </Tabs>
   );

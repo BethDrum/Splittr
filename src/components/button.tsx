@@ -1,8 +1,8 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 type Props = {
     label: string;
-    theme?: 'confirm' | 'edit' | 'back';
+    theme?: 'confirm' | 'edit' | 'back' | 'addOption' | 'share' | 'save' | 'submit';
     onPress?: () => void;
 };
 
@@ -38,12 +38,62 @@ export default function Button({ label, theme, onPress }: Props) {
                 styles.buttonWrapper,
                 { backgroundColor: '#C8D3B7'},
             ]}>
+            <Pressable onPress={onPress} style={styles.group}>
+                <Image style={styles.iconR} source={require('../../assets/images/icons/keyboard_return.png')} />
+                <Text style={styles.buttonLabel}>{label}</Text>
+            </Pressable>
+        </View>
+    )
+    else if (theme === 'addOption')
+        return(
+            <View
+            style={[
+                styles.buttonWrapper,
+                { backgroundColor: '#EBACAD'},
+            ]}>
             <Pressable onPress={onPress}>
                 <Text style={styles.buttonLabel}>{label}</Text>
             </Pressable>
         </View>
     )
-
+    else if (theme === 'share')
+        return(
+            <View
+            style={[
+                styles.buttonWrapper,
+                { backgroundColor: '#C8D3B7'},
+            ]}>
+            <Pressable onPress={onPress} style={styles.group}>
+                <Image style={styles.iconS} source={require('../../assets/images/icons/Share.png')} />
+                <Text style={styles.buttonLabel}>{label}</Text>
+            </Pressable>
+        </View>
+    )
+    else if (theme === 'save')
+        return(
+            <View
+            style={[
+                styles.buttonWrapper,
+                { backgroundColor: '#C8D3B7'},
+            ]}>
+            <Pressable onPress={onPress} style={styles.group}>
+                <Image style={styles.iconS} source={require('../../assets/images/icons/Save.png')} />
+                <Text style={styles.buttonLabel}>{label}</Text>
+            </Pressable>
+        </View>
+    )
+    else if (theme === 'submit')
+        return(
+            <View
+            style={[
+                styles.submit,
+                { backgroundColor: '#EBACAD'},
+            ]}>
+            <Pressable onPress={onPress} style={styles.group}>
+                <Text style={styles.buttonLabel}>{label}</Text>
+            </Pressable>
+        </View>
+    )
     return (
     <View style={styles.buttonWrapper}>
       <Pressable onPress={onPress}>
@@ -72,5 +122,26 @@ const styles = StyleSheet.create({
         fontSize: 25,
         padding: '2%', 
         paddingRight: '5%',
+    },
+    iconS:{
+        marginTop: 8,
+    },
+    iconR: {
+        marginTop: 12,
+    },
+    group: {
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+    },
+    submit: {
+        width: '40%',
+        height: '70%',
+        marginHorizontal: 20,
+        alignSelf: 'center',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 3,
+        borderRadius: 10,
+        margin: 5,
     },
 });
