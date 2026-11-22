@@ -6,7 +6,7 @@ import SwipeGesture from '@/animationControl/swipeGesture';
 import Button from '@/components/button';
 import NameDateModal from '@/components/nameDateModal';
 import NewPersonModal from '@/components/newPersonModal';
-import GuestSection from '@/components/personCard';
+import PersonCard from '@/components/personCard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { SwipeableMethods } from 'react-native-gesture-handler/lib/typescript/components/ReanimatedSwipeable';
@@ -92,24 +92,27 @@ export default function Setup() {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.textHeading}>PLEASE ENTER NAME, DATE AND PEOPLE TO SPLIT BETWEEN</Text>
         <NameDateModal onSubmitObject={(newName, newDate, p1, p2) => addInfo(newName, newDate, p1, p2)}/>
 
-        <Text style={styles.textPrimary}>{name}</Text>
-        <Text style={styles.textPrimary}>{date}</Text>
+        <View style={styles.nameDate}>
+          <Text style={styles.textPrimary}>Name:     {name}</Text>
+          <Text style={styles.textPrimary}>Date:       {date}</Text>
+        </View>
 
         <View style={styles.listOfPeople}>
              <ScrollView style={{ marginTop: 20 }}>
                    <View>
                      {person.map(item => (
                     <SwipeGesture key={item.id} onRemove={() => handleDelete(item.id)} onOpen={registerOpen}>
-                        <GuestSection name={item.name} />
+                        <PersonCard name={item.name} />
                     </SwipeGesture>
                     ))}
                 </View>
             </ScrollView>
         </View>
         <View style={styles.buttonSec}>
-        {person.length < 4 && person.length >= 2 && (<NewPersonModal onSubmitObject={(newName) => newPerson(newName)}/>)}
+            {person.length < 4 && person.length >= 2 && (<NewPersonModal onSubmitObject={(newName) => newPerson(newName)}/>)}
             <Button theme='submit' label='CONTINUE' onPress={goToReciept}/>
             
             <Button theme="back" label="RETURN TO HOME" onPress={goToHome}/>
@@ -122,9 +125,10 @@ export default function Setup() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFDF2',
+    backgroundColor: '#D4E0F3',
     height: '100%',
     width: '100%',
+    padding: '5%'
   },
   listOfCards: {
     flex: 2,
@@ -159,5 +163,18 @@ const styles = StyleSheet.create({
   buttonSec: {
     height: '10%',
     marginBottom: '10%',  
+  },
+  textHeading: {
+    color: '#4F4F4F',
+    fontFamily: 'lucida grande',
+    fontWeight: 'bold',
+    fontSize: 35,
+    textAlign: 'center',
+  },
+  nameDate: {
+    backgroundColor: '#FFFDF2',
+    borderRadius: 15,
+    padding: '3%',
+    marginTop: '5%',
   }
 });

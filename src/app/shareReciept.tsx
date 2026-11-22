@@ -11,24 +11,19 @@ type People = {
   name: string;
 }
 
-interface Item {
-  id: string;
-  food: string;
-  cost: string;
-}
-
 interface Receipt {
   id: string;
   name: string;
   date: string;
   people: People[];
-  modifiedItems: Item[];
+  modifiedItems: number[];
+  totalItems: number[];
 }
 
 export default function shareReciept(){
     //SET VARIABLES
     //recieve data from splitReciept.tsx
-    const { mode, totals, recieptId } = useLocalSearchParams();
+    const { mode, totals, receiptId } = useLocalSearchParams();
     
     //totalItems state for base item costs
     const [totalItems, setTotalItems] = useState<number[]>([]);
@@ -39,9 +34,11 @@ export default function shareReciept(){
     const [save, setSaved] = useState(false);
 
     //relevent data to display
+    const [currentReceiptID, setCurrentReceiptId] = useState<string>('');
     const [name, setName] = useState('');
     const [date, setDate] = useState('');
     const [people, setPeople] = useState<People[]>([]);
+
 
     //for reading im saved data
     const [allReciepts, setAllReciepts] = useState<Receipt[]>([]);
@@ -51,15 +48,24 @@ export default function shareReciept(){
         try {
             //get in all reciepts
             const tempAllReciepts = await AsyncStorage.getItem('allReciepts');
-            const allReciepts = tempAllReciepts ? JSON.parse(tempAllReciepts) : [];
+            const receipts = tempAllReciepts ? JSON.parse(tempAllReciepts) : [];
 
             //find specific reciept
-            const specificReceipt = allReciepts.find((r: Receipt) => r.id === key);
+            const specificReceipt = receipts.find((r: Receipt) => r.id === key);
+
+            console.log(allReciepts)
+            if (!specificReceipt) {
+                console.log('Receipt not found');
+                return;
+            }
 
             //set all relevent data
+            setCurrentReceiptId(specificReceipt.id)
             setName(specificReceipt.name)
             setDate(specificReceipt.date)
             setPeople(specificReceipt.people)
+            setModifiedItems(specificReceipt.modifiedItems)
+            setTotalItems(specificReceipt.totalItems)
             setSaved(true)
             //return value != null ? JSON.parse(value) : null;
         } catch (error) {
@@ -87,7 +93,7 @@ export default function shareReciept(){
 
     //for maths operations in service charge and discount
     const roundToTwo = (num: number): number => Math.round((num + Number.EPSILON) * 100) / 100;
-    const lengthOfTotal = Math.ceil(totalItems.length);
+    const lengthOfTotal = Math.ceil((totalItems ||[]).length);
 
     //For service charge:
     const [serviceCharge, setServiceCharge] = useState(0);
@@ -160,22 +166,23 @@ export default function shareReciept(){
     //get information when the page has started (either from creation or, locally stored)
     useEffect(() => {
         if (mode === 'saved') {
-            getItem(recieptId as string);
+            getItem(receiptId as string);
         }else{
             getNameDatePeople();
-
-            const tempTotal: number[] = JSON.parse(totals as string);
         }
     }, []);
+
+    const newId = Math.random().toString();
 
     //save information to device
     const saveData = async () => {
         const allData = {
-            id: Math.random().toString(),
+            id: newId,
             name,
             date, 
             people,
             modifiedItems,
+            totalItems,
         }
         console.log(JSON.stringify(allData, null, 2));
         try{
@@ -191,6 +198,7 @@ export default function shareReciept(){
             //alert complete and set saved as true to no longer show save button
             alert('data saved')
             setSaved(true)
+            setCurrentReceiptId(newId)
             console.log('saved')
         }catch (error){
             console.error('Error saving data: ', error)
@@ -199,13 +207,15 @@ export default function shareReciept(){
 
     //option to delete the saved data
     const deleteData = async () => {
-        const key = "here";
         try{
-             //get existing events from local storage and split into its seperate events
-            const tempAllReciepts = await AsyncStorage.getItem('allData');
+            //get in all reciepts
+            const tempAllReciepts = await AsyncStorage.getItem('allReciepts');
             const allReciepts = tempAllReciepts ? JSON.parse(tempAllReciepts) : [];
 
-            //find id of current
+            //find specific reciept and remove it using id
+            const updated = allReciepts.filter((r: {id: string}) => r.id !== currentReceiptID);
+            
+            await AsyncStorage.setItem('allReciepts', JSON.stringify(updated))
 
             setSaved(false);
             alert('Delteted')
@@ -217,7 +227,6 @@ export default function shareReciept(){
     const goToHome = () => {
         router.push({pathname: '/'});
     }
-
     return(
         //display all persons data in the style of a reciept
         <View style={styles.main}>
@@ -233,7 +242,7 @@ export default function shareReciept(){
                 </View>
                 <View style={styles.gap}></View>
                 {/* for each person to see the total for, dynamically changes to number of totals recieved */}
-                {totalItems.map((items, index) => (
+                {people.map((items, index) => (
                     <View key={index} style={styles.textSection}>
                     <Text style={styles.textSecondary}>{people[index]?.name}</Text>
                     <View style={styles.dottedLine}>

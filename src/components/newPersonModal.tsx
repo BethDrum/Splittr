@@ -9,7 +9,7 @@ type Props = {
 };
 
 export default function NewPersonModal({onSubmitObject,}: Props){
-  const [modalVisible, setModalVisible] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false);
   const [text, onChangeText] = useState("");
   const [cost, onChangeCost] = useState('');
 

@@ -6,16 +6,11 @@ interface GuestSection {
     image?: string;
 }
 
-export default function GuestSection({name}: GuestSection) {
+export default function PersonCard({name}: GuestSection) {
     
     return(
         <View style={styles.cardWrapper}>
-            {/* {(image && (
-                <Image source={{ uri: image}} style={styles.avatar}/>
-            ) */}
-
-            {/* )} */}
-            <View style = {styles.mainCard}>
+            <View>
                 <Text style={styles.name}>{name}</Text>
             </View>
         </View>
@@ -24,33 +19,19 @@ export default function GuestSection({name}: GuestSection) {
 
 
 export const styles = StyleSheet.create({
-    mainCard: {
-        flex: 1,
-        backgroundColor: '#FFFDF2',
-        margin: 5,
-        borderRadius: 10,
-        color: '#4F4F4F',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
     cardWrapper: {
-        flex: 1,
+        alignSelf: 'center',
+        backgroundColor: '#FFFDF2',
+        borderRadius: 15,
+        margin: '1%',
         width: '100%',
-        alignSelf: 'flex-start',
     },
     name: {
         color: '#4F4F4F',
         fontFamily: 'lucida grande',
         fontWeight: 'bold',
-        fontSize: 20,
+        fontSize: 25,
         padding: '2%', 
         paddingLeft: '5%',
     },
-    avatar: {
-        
-    },
-    input: {
-
-    }
 });
