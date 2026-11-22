@@ -19,6 +19,11 @@ export default function RootLayout() {
           name="setup"
           options={{ headerShown: false }}
         />
+
+        <Stack.Screen
+          name="viewReciept"
+          options={{ headerShown: false }}
+        />
       </Stack>
     </GestureHandlerRootView>
   );

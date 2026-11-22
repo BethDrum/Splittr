@@ -23,12 +23,14 @@ export default function modal({theme, onSubmit}: Props){
 
   //set value to return and make the modal invisible
   const submit = () => {
+    cleanCost(cost)
     if (!number.trim()) {
         Alert.alert('Please enter information in all fields.');
         return;
     }
     onSubmit(parseFloat(number) || 0);
     setModalVisible(false);
+
   };
 
   if (theme === 'service'){

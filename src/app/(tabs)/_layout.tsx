@@ -28,15 +28,6 @@ export default function TabLayout() {
           ),
         }} 
       />
-      <Tabs.Screen 
-        name ="viewReciept"
-        options={{ 
-          title: 'About', 
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'information-circle' : 'information-circle-outline'} size={24}/>
-          ),
-        }}
-      />
 
       <Tabs.Screen name="splitReciept"
       options={{

@@ -82,7 +82,7 @@ export default function Setup() {
             console.error('Error saving data: ', error)
         }
 
-      router.push({pathname: '/(tabs)/viewReciept'});
+      router.push({pathname: '/viewReciept'});
     };
 
     const goToHome = () => {
