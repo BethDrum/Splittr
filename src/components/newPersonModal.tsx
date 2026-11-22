@@ -8,7 +8,7 @@ type Props = {
     onSubmitObject: (text: string) => void;
 };
 
-export default function NewPersonModal({onSubmitObject}: Props){
+export default function NewPersonModal({onSubmitObject,}: Props){
   const [modalVisible, setModalVisible] = useState(true);
   const [text, onChangeText] = useState("");
   const [cost, onChangeCost] = useState('');

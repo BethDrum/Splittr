@@ -43,15 +43,6 @@ export default function TabLayout() {
         title: 'split'
       }} />
 
-      {/* <Tabs.Screen name="shareReciept"
-      options={{
-        title: 'share'
-      }} /> */}
-
-      <Tabs.Screen name="setup"
-      options={{
-        title: 'setup'
-      }} />
     </Tabs>
   );
 }

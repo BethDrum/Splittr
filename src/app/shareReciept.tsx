@@ -1,44 +1,88 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert, Share, StyleSheet, Text, View } from 'react-native';
 
 import Button from '@/components/button';
 import Modal from '@/components/modal';
 
-export default function shareReciept(){
-    //recieve data
-    const { totals } = useLocalSearchParams();
-    //length of seperated recieved totals
-    const tempTotal: number[] = JSON.parse(totals as string);
-    const length = tempTotal.length
+type People = {
+  id: string;
+  name: string;
+}
 
-    //put into state of any number
+interface Item {
+  id: string;
+  food: string;
+  cost: string;
+}
+
+interface Receipt {
+  id: string;
+  name: string;
+  date: string;
+  people: People[];
+  modifiedItems: Item[];
+}
+
+export default function shareReciept(){
+    //SET VARIABLES
+    //recieve data from splitReciept.tsx
+    const { mode, totals, recieptId } = useLocalSearchParams();
+    
+    //totalItems state for base item costs
     const [totalItems, setTotalItems] = useState<number[]>([]);
-    //and  create modified ver for serive charge/discount addition
+    //and  create modified ver for serive charge addition
     const [modifiedItems, setModifiedItems] = useState<number[]>([]);
 
     //keep track of if the data has been saved or not
     const [save, setSaved] = useState(false);
 
-    //will always work as total of 1 item is 2 (cost & name)
-    //get data - if only key passed in
+    //relevent data to display
+    const [name, setName] = useState('');
+    const [date, setDate] = useState('');
+    const [people, setPeople] = useState<People[]>([]);
+
+    //for reading im saved data
+    const [allReciepts, setAllReciepts] = useState<Receipt[]>([]);
+
+    //get data - if only the object is passed in (it is from a locally stored object, not currently created)
     const getItem = async (key: string) => {
         try {
-            const value = await AsyncStorage.getItem(key);
-            console.log(value)
+            //get in all reciepts
+            const tempAllReciepts = await AsyncStorage.getItem('allReciepts');
+            const allReciepts = tempAllReciepts ? JSON.parse(tempAllReciepts) : [];
+
+            //find specific reciept
+            const specificReceipt = allReciepts.find((r: Receipt) => r.id === key);
+
+            //set all relevent data
+            setName(specificReceipt.name)
+            setDate(specificReceipt.date)
+            setPeople(specificReceipt.people)
             setSaved(true)
-            return value != null ? JSON.parse(value) : null;
+            //return value != null ? JSON.parse(value) : null;
         } catch (error) {
             console.error('Error getting item:', error);
             return null;
         }
     };
 
+    //to recieve name and date to display & (if selected) saved in the group
+    const getNameDatePeople = async () => {
+        try{
+        const storedName = await AsyncStorage.getItem('name')
+        const storedDate = await AsyncStorage.getItem('date')
+        const storedPeople = await AsyncStorage.getItem('people')
 
-    //call the function
-    if (length === 1) {
-        getItem(String(tempTotal[0]));
+        setName(storedName ? JSON.parse(storedName) : '');
+        setDate(storedDate ? JSON.parse(storedDate) : '')
+        setPeople(JSON.parse(storedPeople as string));
+        
+        console.log('Name: ',storedName, '\nDate: ',storedDate,'\n People: ',storedPeople)
+        } catch (error) {
+        console.error('Error when gathering information: ', error)
+        }
     }
 
     //for maths operations in service charge and discount
@@ -62,18 +106,18 @@ export default function shareReciept(){
     }
 
     //for discount
-    const [discount, setDiscount] = useState(0);
+    // const [discount, setDiscount] = useState(0);
 
-    const addDiscount = () => {
-        //data comes in like 50 for 50%
+    // const addDiscount = () => {
+    //     //data comes in like 50 for 50%
 
-        //calculate what to * all by
-        const discountAmount = discount / 100;
-        //update all items to include the discount
-        setModifiedItems(
-            totalItems.map(item => item * discountAmount)
-        );
-    }
+    //     //calculate what to * all by
+    //     const discountAmount = discount / 100;
+    //     //update all items to include the discount
+    //     setModifiedItems(
+    //         totalItems.map(item => item * discountAmount)
+    //     );
+    // }
 
 
     //to share the data
@@ -113,18 +157,38 @@ export default function shareReciept(){
         addService();
     }, [serviceCharge, totalItems]);
 
-    //run addDiscount when addDiscount is updated - this makes all go to 0?????????? -------------------------------------------------------
-    // useEffect(() => {
-    //     addDiscount();
-    // }, [discount]);
+    //get information when the page has started (either from creation or, locally stored)
+    useEffect(() => {
+        if (mode === 'saved') {
+            getItem(recieptId as string);
+        }else{
+            getNameDatePeople();
 
+            const tempTotal: number[] = JSON.parse(totals as string);
+        }
+    }, []);
 
     //save information to device
     const saveData = async () => {
-        console.log(modifiedItems);
-        const key = "here";
+        const allData = {
+            id: Math.random().toString(),
+            name,
+            date, 
+            people,
+            modifiedItems,
+        }
+        console.log(JSON.stringify(allData, null, 2));
         try{
-            await AsyncStorage.setItem(key, JSON.stringify(modifiedItems));
+            //get existing events from local storage and split into its seperate events
+            const tempAllReciepts = await AsyncStorage.getItem('allReciepts');
+            const allReciepts = tempAllReciepts ? JSON.parse(tempAllReciepts) : [];
+
+            //push new data onto the reciepts
+            allReciepts.push(allData)
+
+            //store intire array into local storage
+            await AsyncStorage.setItem('allReciepts', JSON.stringify(allReciepts));
+            //alert complete and set saved as true to no longer show save button
             alert('data saved')
             setSaved(true)
             console.log('saved')
@@ -137,7 +201,12 @@ export default function shareReciept(){
     const deleteData = async () => {
         const key = "here";
         try{
-            await AsyncStorage.removeItem(key);
+             //get existing events from local storage and split into its seperate events
+            const tempAllReciepts = await AsyncStorage.getItem('allData');
+            const allReciepts = tempAllReciepts ? JSON.parse(tempAllReciepts) : [];
+
+            //find id of current
+
             setSaved(false);
             alert('Delteted')
         }catch (error) {
@@ -145,14 +214,18 @@ export default function shareReciept(){
         }
     };
 
+    const goToHome = () => {
+        router.push({pathname: '/'});
+    }
+
     return(
         //display all persons data in the style of a reciept
         <View style={styles.main}>
             <View style={{marginTop: '5%'}}></View>
             <View style={styles.reciept}>
                 {/* title */}
-                <Text style={styles.textPrimary}>Name</Text>
-                <Text style={styles.textPrimary}>Date</Text>
+                <Text style={styles.textPrimary}>{name}</Text>
+                <Text style={styles.textPrimary}>{date}</Text>
                 <View style={styles.dottedLine}>
                     {Array.from({ length: 40 }).map((_, i) => (
                         <View key={i} style={styles.singleDot}/>
@@ -162,7 +235,7 @@ export default function shareReciept(){
                 {/* for each person to see the total for, dynamically changes to number of totals recieved */}
                 {totalItems.map((items, index) => (
                     <View key={index} style={styles.textSection}>
-                    <Text style={styles.textSecondary}>Name </Text>
+                    <Text style={styles.textSecondary}>{people[index]?.name}</Text>
                     <View style={styles.dottedLine}>
                         {Array.from({ length: 30 }).map((_, i) => (
                             <View key={i} style={styles.singleDot}/>
@@ -194,7 +267,7 @@ export default function shareReciept(){
             <Button theme='save' label={save ? 'DELETE SAVE' : 'SAVE'} onPress={save ? deleteData : saveData} />
             
 
-            <Button theme='back' label='RETURN TO HOME' onPress={onShare} />
+            <Button theme='back' label='RETURN TO HOME' onPress={goToHome} />
             </View>
         </View>
     );

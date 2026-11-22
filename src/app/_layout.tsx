@@ -9,6 +9,16 @@ export default function RootLayout() {
           name="(tabs)"
           options={{ headerShown: false }}
         />
+
+        <Stack.Screen
+          name="shareReciept"
+          options={{ headerShown: false }}
+        />
+
+        <Stack.Screen
+          name="setup"
+          options={{ headerShown: false }}
+        />
       </Stack>
     </GestureHandlerRootView>
   );

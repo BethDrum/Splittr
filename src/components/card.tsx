@@ -11,7 +11,10 @@ export default function Card({ theme, onPress }: Props) {
         <View style={styles.cardWrapper}>
             <View style = {styles.mainCard}>
                 <Pressable onPress={onPress}>
-                    <Text style={styles.textPrimary}>ADD   NEW   RECEIPT</Text>
+                    <View style={styles.recieptText}>
+                    <Text style={styles.textPrimary}>ADD   NEW</Text>
+                    <Text style={styles.textPrimary}>RECEIPT  +</Text>
+                    </View>
                 </Pressable>
                 <View style={styles.imageWrapper}>
                     <Image style={styles.image} source={require('../../assets/images/reciept.png')} />
@@ -19,17 +22,6 @@ export default function Card({ theme, onPress }: Props) {
             </View>
         </View>
     );
-    return (
-    <View style={styles.cardWrapper}>
-        <Pressable style={styles.secondaryCard} onPress={onPress}>
-            <View style={styles.iconBox}></View>
-            <View>
-                <Text style={styles.textSecondary}>Place Name</Text>
-                <Text style={styles.textSecondary}>25.12.25</Text>
-            </View>
-      </Pressable>
-    </View>
-  );
 }
 
 
@@ -69,8 +61,7 @@ const styles = StyleSheet.create({
         color: '#FFFDF2',
         fontFamily: 'lucida grande',
         fontWeight: 'bold',
-        fontSize: 30,
-        padding: '5%',
+        fontSize: 60,
     },
     textSecondary: {
         color: '#4F4F4F',
@@ -84,9 +75,14 @@ const styles = StyleSheet.create({
         flex: 1,
         alignSelf: 'flex-end',
         position: 'absolute',
-        marginTop: '5%',
+        height: '100%',
+        
     },
     image: {
-        flex: 1,
+        height: '100%',
+        width: 250,
+    },
+    recieptText: {
+        padding: '5%'
     }
 });

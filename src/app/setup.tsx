@@ -1,11 +1,14 @@
 //import { DatePicker, Host } from '@expo/ui/swift-ui';
 import { useCallback, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import SwipeGesture from '@/animationControl/swipeGesture';
+import Button from '@/components/button';
 import NameDateModal from '@/components/nameDateModal';
 import NewPersonModal from '@/components/newPersonModal';
 import GuestSection from '@/components/personCard';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from 'expo-router';
 import { SwipeableMethods } from 'react-native-gesture-handler/lib/typescript/components/ReanimatedSwipeable';
 
 //guest that has a name and optional image
@@ -16,39 +19,14 @@ type Person = {
 };
 
 export default function Setup() {
-//   const router = useRouter(); 
   //people states - one setup for two inital people
   const [person, setPerson] = useState<({id: string, name: string}[])>([]);
   const [name, setName] = useState('');
   //const [date, changeDate] = useState(new Date());
   const [date, setDate] = useState('');
 
-  //add guest
-   //add a new block
-    // const addNewTemp = (newName: string, newImage?: string) => {
-    //   //take in information to array
-    //   const info = {id: Math.random().toString(), name: newName, ...(newImage && {image: newImage}), };
 
-    //   console.log(info)
-    //   //add to people array
-    //   setPerson(prev => [...prev, info])
-    //   console.log("running")
-    // }
-    //clear inputs
-    
-
-//     const addNew = () => {
-//         setPerson(prev => [
-//             ...prev, {id: Math.random().toString(), name: '', image: '', editing: true}
-//         ])
-//     }
-
-//     //when a person is added back
-//     const finishEdit = (id: string) => {
-//         setPerson(prev => prev.map(p => p.id === id ? {...p,editing: false}:p))
-//     }
-
-//   //delete function
+   //delete function
     const handleDelete = (id: string) => {
         if (person.length <= 2){
             alert('There must be a minimum of 2 people to split between');
@@ -72,11 +50,7 @@ export default function Setup() {
     []
     );
 
-//     //ensure person updates
-//     useEffect(() => {
-//         console.log('person updated')
-//     }, [person]);
-
+    //add all new information from initial modals
     const addInfo = (newName: string, newDate: string, p1: string, p2: string) => {
         setName(newName);
         setDate(newDate);
@@ -88,12 +62,33 @@ export default function Setup() {
         console.log(person)
     }
 
+    //when adding a new person
     const newPerson = (newName: string) => {
         setPerson(prev => [
             ...prev,
             { id: Math.random().toString(), name: newName },
         ]);
     }
+
+    //store data and go to viewReciept.tsx
+    const goToReciept = async () => {
+      // store data
+        try{
+            await AsyncStorage.setItem('people', JSON.stringify(person));
+            await AsyncStorage.setItem('name', JSON.stringify(name)); 
+            await AsyncStorage.setItem('date', JSON.stringify(date)); 
+            console.log('saved')
+        }catch (error){
+            console.error('Error saving data: ', error)
+        }
+
+      router.push({pathname: '/(tabs)/viewReciept'});
+    };
+
+    const goToHome = () => {
+        Alert.alert('All data entered will be lost')
+        router.push({pathname: '/(tabs)'})
+    };
 
   return (
     <View style={styles.container}>
@@ -113,47 +108,14 @@ export default function Setup() {
                 </View>
             </ScrollView>
         </View>
-        
-        {person.length < 4 && (<NewPersonModal onSubmitObject={(newName) => newPerson(newName)}/>)}
+        <View style={styles.buttonSec}>
+        {person.length < 4 && person.length >= 2 && (<NewPersonModal onSubmitObject={(newName) => newPerson(newName)}/>)}
+            <Button theme='submit' label='CONTINUE' onPress={goToReciept}/>
+            
+            <Button theme="back" label="RETURN TO HOME" onPress={goToHome}/>
+        </View>
 
     </View>
-
-
-
-    // <View style={styles.container}>
-    //     <View style={styles.header}>
-    //         <View>
-    //             <Text style={styles.textSecondary}>Name: </Text>
-    //             <TextInput style={styles.input} 
-    //             value={name}
-    //             onChangeText={changeName} 
-    //             placeholder= 'Enter name for this split...' /> 
-    //         </View>
-
-    //         <View>
-    //             <Text style={styles.textSecondary}>Date: </Text>
-    //             <TextInput style={styles.input} 
-    //             value={date}
-    //             onChangeText={changeDate} 
-    //             placeholder= 'Enter date of split...' /> 
-    //         </View>
-    //     </View>
-
-
-    //     <View style={styles.listOfPeople}>
-    //         <ScrollView style={{ marginTop: 20 }}>
-    //             <View>
-    //                 {person.map(item => (
-    //                 <SwipeGesture key={item.id} onRemove={() => handleDelete(item.id)} onOpen={registerOpen}>
-    //                     <GuestSection name={item.name} image={item.image} editing={item.editing} nameChange={(text) => {setPerson(prev => prev.map(p=> p.id === item.id ? {...p, name: text}:p))}} onSubmit={() => finishEdit(item.id)}/>
-    //                 </SwipeGesture>
-    //                 ))}
-    //             </View>
-    //         </ScrollView>
-    //     </View>
-
-    //     <Button theme='submit' label='temp add' onPress={addNew}/>
-    // </View>
   );
 }
 
@@ -166,7 +128,7 @@ const styles = StyleSheet.create({
   },
   listOfCards: {
     flex: 2,
-    width: '90%',
+    width: '50%',
     marginTop: '5%',
   },
   textPrimary: {
@@ -193,5 +155,9 @@ const styles = StyleSheet.create({
   },
   listOfPeople: {
     height: '60%',
+  },
+  buttonSec: {
+    height: '10%',
+    marginBottom: '10%',  
   }
 });

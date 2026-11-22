@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from "react-native";
@@ -11,6 +12,11 @@ type ReceiptItem = {
   cost: string;
 };
 
+type People = {
+  id: string;
+  name: string;
+}
+
 export default function App() {
   //total for all passes - currently just for 4
   const total = useRef<number[]>([0, 0, 0, 0]);
@@ -22,10 +28,26 @@ export default function App() {
   const [currentCard, setCurrentCard] = useState<number | null>(null);
   //for router to take to next page on end
   const router = useRouter();
+  const [people, setPeople] = useState<People[]>([]);
+  const defaultColours = ['#C0DFF7','#C8D3B7','#F7D6C0','#E7C8F7',];
 
   //recieve data
   const { recieptItems } = useLocalSearchParams();
   const items: ReceiptItem[] = JSON.parse(recieptItems as string);
+
+  useEffect(() => {
+    getPeople();
+  }, [])
+
+  const getPeople = async () => {
+    try{
+    const storedPeople = await AsyncStorage.getItem('people')
+    setPeople(JSON.parse(storedPeople as string));
+    console.log('People', people)
+    } catch (error) {
+      console.error('Error when gathering information: ', error)
+    }
+  }
   
   //for animated on hover of draggable
   const [isActive, setIsActive] = useState(false);
@@ -59,6 +81,10 @@ export default function App() {
     setCurrentCard(null)
   };
 
+  //alter number of drop spaces based off of number of people provided
+  const numSections = people.length <= 2 ? 2: people.length <= 3 ? 3: 4;
+  
+
   //display the correcrt card
   const dispCard = (index: number | null) => {
     setCurrentCard(index);
@@ -74,7 +100,7 @@ export default function App() {
   //go to the share page and send total values
   const goToShareScreen = () => {
     console.log('moving to share screen')
-    router.push({pathname: '/(tabs)/shareReciept', params: {totals: JSON.stringify(total.current)}})
+    router.push({pathname: '/shareReciept', params: {mode: 'new', totals: JSON.stringify(total.current)}})
   };
 
   //function that controls all the running
@@ -94,81 +120,78 @@ export default function App() {
     goToShareScreen();
   };
 
+  //to display the people cards in a way that can be changed depending on the number of people
+  const dropSection = (i: number) => (
+    <Droppable
+    key={i}
+    onDrop={() => assignDrop(i, index)} style={[styles.drop, {flex: 1, backgroundColor: defaultColours[i]}]}
+    onActiveChange={(active) => setIsActive(active)}
+    activeStyle={{
+        backgroundColor: "rgba(88, 166, 255, 0.1)",
+        borderColor: "#58a6ff",
+        borderWidth: 2,
+    }}
+    >
+    <Animated.View style={[styles.section, animatedStyle]}>
+      <Text style={styles.text}>{people[i]?.name}</Text>
+    </Animated.View>
+  </Droppable>
+  )
 
   useEffect(() => {
-      run();
-    }, []);
+    run();
+  }, []);
 
 
   return (
     <GestureHandlerRootView>
+      <Text style={styles.primaryText}>Drag the item to the person to assign it too</Text>
+
       <DropProvider>
         <View style={{flex: 1}}>
         <View style={styles.wrap}>
-          {/* 4 sections for the draggable (reciept) section */}
-          <Droppable
-            onDrop={() => assignDrop(0, index)} style={{flex: 1, backgroundColor: '#C0DFF7'}}
-            onActiveChange={(active) => setIsActive(active)}
-            activeStyle={{
-                backgroundColor: "rgba(88, 166, 255, 0.1)",
-                borderColor: "#58a6ff",
-                borderWidth: 2,
-            }}
-            >
-            <Animated.View style={[styles.section, animatedStyle]}>
-              <Text style={styles.text}>Person 1</Text>
-            </Animated.View>
-          </Droppable>
-          <Droppable
-            onDrop={() => assignDrop(1, index)} style={{flex: 1, backgroundColor: '#C8D3B7'}}
-            onActiveChange={(active) => setIsActive(active)}
-            activeStyle={{
-                backgroundColor: "rgba(88, 166, 255, 0.1)",
-                borderColor: "#58a6ff",
-                borderWidth: 2,
-            }}
-            >
-            <Animated.View style={[styles.section, animatedStyle]}>
-              <Text style={styles.text}>Person 2</Text>
-            </Animated.View>
-          </Droppable>
-        </View>
-        <View style={styles.wrap}>
+          {/* changable number of sections for the draggable (reciept) section (based on number of people) */}
 
-          <Droppable
-            onDrop={() => assignDrop(2, index)} style={{flex: 1, backgroundColor: '#EBBCDD'}}
-            onActiveChange={(active) => setIsActive(active)}
-            activeStyle={{
-                backgroundColor: "rgba(88, 166, 255, 0.1)",
-                borderColor: "#58a6ff",
-                borderWidth: 2,
-            }}
-            >
-            <Animated.View style={[styles.section, animatedStyle]}>
-              <Text style={styles.text}>Person 3</Text>
-            </Animated.View>
-          </Droppable>
+          {numSections === 2 && (
+            <View style={styles.col}>
+              {dropSection(0)}
+              {dropSection(1)}
+            </View>
+          )}
 
-          <Droppable
-          onDrop={() => assignDrop(3, index)} style={{flex: 1, backgroundColor: '#EBE3B1'}}
-          onActiveChange={(active) => setIsActive(active)}
-          activeStyle={{
-              backgroundColor: "rgba(88, 166, 255, 0.1)",
-              borderColor: "#58a6ff",
-              borderWidth: 2,
-          }}
-          >
-          <Animated.View style={[styles.section, animatedStyle]}>
-              <Text style={styles.text}>Person 4</Text>
-          </Animated.View>
-            </Droppable>
+          {numSections === 3 && (
+            <View style={styles.col}>
+              <View style={{flex: 1}}>
+                {dropSection(0)}
+              </View>
+              <View style={styles.row}>
+                {dropSection(1)}
+                {dropSection(2)}
+              </View>
+            </View>
+          )}
+
+          {numSections === 4 && (
+            <View style={styles.col}>
+              <View style={styles.row}>
+                {dropSection(0)}
+                {dropSection(1)}
+              </View>
+              <View style={styles.row}>
+                {dropSection(2)}
+                {dropSection(3)}
+              </View>
+            </View>
+          )}
           
           {/* draggable reciept date */}
 
           {currentCard !== null && (
-            <Draggable data={currentCard} style={styles.drag}>
+            <View style={styles.centre}>
+            <Draggable data={currentCard} style={styles.drag} collisionAlgorithm='center'>
               <Text style={styles.recieptText}>{items[currentCard].food}............ {items[currentCard].cost} </Text>
             </Draggable>
+            </View>
           )}
           </View>
         </View>
@@ -180,7 +203,7 @@ export default function App() {
 const styles = StyleSheet.create({
   wrap: {
     flex: 1,
-    flexDirection: 'row',
+    flexDirection: 'column',
   },
 
   section: {
@@ -190,25 +213,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 10,
   },
-  drag: {
-    //general styling
-    padding: 20, 
-    backgroundColor: "#FFFDF2", 
+  centre: {
     position: 'absolute',
+    left: 0,
+    right: 0,
+    top: '50%',
+    alignItems: 'center',
+  },
+
+  drag: {
+    padding: 20,
+    backgroundColor: '#FFFDF2',
     borderRadius: 9,
-    // position
-    // justifyContent: 'center',
-    // alignItems: 'center',
-     transform: [
-      { translateX: -150 }, // half width
-      { translateY: -100 }, // half height
-    ],
-    zIndex: 1000,
-    marginHorizontal: '20%',
-    marginVertical: '-5%',
-    // elevation: 1000,
-    // alignSelf: 'center',
-    // marginTop: '50%'
   },
   text: {
     color: '#4F4F4F',
@@ -225,5 +241,25 @@ const styles = StyleSheet.create({
     fontSize: 25,
     padding: 5,
     alignSelf: 'center',
+  },
+  primaryText: {
+    color: '#4F4F4F',
+    fontFamily: 'lucida grande',
+    fontWeight: 'bold',
+    fontSize: 30,
+    padding: 5,
+    alignSelf: 'center',
+    zIndex: 9999,
+  },
+  drop: {
+    flex: 1,
+    margin: 5,
+  },
+  row: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  col: {
+    flex: 1
   }
 });
