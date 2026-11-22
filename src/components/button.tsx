@@ -2,7 +2,7 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 type Props = {
     label: string;
-    theme?: 'confirm' | 'edit' | 'back' | 'addOption' | 'share' | 'save' | 'submit';
+    theme?: 'confirm' | 'edit' | 'back' | 'addOption' | 'share' | 'save' | 'submit' | 'action' | 'next';
     onPress?: () => void;
 };
 
@@ -94,6 +94,30 @@ export default function Button({ label, theme, onPress }: Props) {
             </Pressable>
         </View>
     )
+    else if (theme === 'action')
+        return(
+            <View
+            style={[
+                styles.buttonWrapper,
+                { backgroundColor: '#EBACAD'},
+            ]}>
+            <Pressable onPress={onPress} style={styles.group}>
+                <Text style={styles.buttonLabel}>{label}</Text>
+            </Pressable>
+        </View>
+    )
+    else if (theme === 'next')
+        return(
+            <View
+            style={[
+                styles.buttonWrapper,
+                { backgroundColor: '#A8B396'},
+            ]}>
+            <Pressable onPress={onPress} style={styles.group}>
+                <Text style={styles.buttonLabel}>{label}</Text>
+            </Pressable>
+        </View>
+    )
     return (
     <View style={styles.buttonWrapper}>
       <Pressable onPress={onPress}>
@@ -112,7 +136,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         padding: 3,
-        borderRadius: 10,
+        borderRadius: 40,
         margin: 5,
     },
     buttonLabel: {
@@ -141,7 +165,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         padding: 3,
-        borderRadius: 10,
+        borderRadius: 40,
         margin: 5,
     },
 });

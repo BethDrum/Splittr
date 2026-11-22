@@ -112,8 +112,10 @@ export default function Setup() {
             </ScrollView>
         </View>
         <View style={styles.buttonSec}>
+            <View style={{marginBottom: '6%'}}>
             {person.length < 4 && person.length >= 2 && (<NewPersonModal onSubmitObject={(newName) => newPerson(newName)}/>)}
-            <Button theme='submit' label='CONTINUE' onPress={goToReciept}/>
+            </View>
+            <Button theme='next' label='CONTINUE' onPress={goToReciept}/>
             
             <Button theme="back" label="RETURN TO HOME" onPress={goToHome}/>
         </View>
@@ -124,16 +126,21 @@ export default function Setup() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: '#D4E0F3',
     height: '100%',
     width: '100%',
     padding: '5%'
   },
-  listOfCards: {
-    flex: 2,
-    width: '50%',
-    marginTop: '5%',
+  header: {
+    height: '30%',
+    padding: '5%'
+  },
+  listOfPeople: {
+    height: '55%',
+  },
+  buttonSec: {
+    height: '10%',
+    marginBottom: '15%',  
   },
   textPrimary: {
     color: '#4F4F4F',
@@ -152,17 +159,6 @@ const styles = StyleSheet.create({
     borderColor: '#000',
     backgroundColor: '#fff',
     width: 300,
-  },
-  header: {
-    height: '30%',
-    padding: '5%'
-  },
-  listOfPeople: {
-    height: '60%',
-  },
-  buttonSec: {
-    height: '10%',
-    marginBottom: '10%',  
   },
   textHeading: {
     color: '#4F4F4F',

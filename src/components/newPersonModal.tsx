@@ -69,7 +69,7 @@ export default function NewPersonModal({onSubmitObject,}: Props){
         </Pressable>
         </Modal>
 
-        <Button theme='addOption' label='Add person' onPress={() => setModalVisible(true)}/>
+        <Button theme='action' label='Add person' onPress={() => setModalVisible(true)}/>
         </SafeAreaView>
     </SafeAreaProvider>
     );
