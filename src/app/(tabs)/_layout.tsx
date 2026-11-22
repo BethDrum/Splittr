@@ -11,6 +11,7 @@ export default function TabLayout() {
           backgroundColor: '#FFFDF2',
         },
         headerShadowVisible: false,
+        headerShown: false,
         headerTintColor: '#fff',
         tabBarStyle: {
           backgroundColor: '#faf6e2',
@@ -41,6 +42,7 @@ export default function TabLayout() {
       options={{
         title: 'split'
       }} />
+
     </Tabs>
   );
 }

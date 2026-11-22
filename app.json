@@ -8,7 +8,7 @@
     "scheme": "splittr",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/images/expo.icon"
     },
     "android": {
       "adaptiveIcon": {
@@ -34,7 +34,11 @@
           "imageWidth": 76
         }
       ],
-      "expo-sharing"
+      "expo-sharing",
+      "expo-audio",
+      "expo-asset",
+      "expo-status-bar",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,

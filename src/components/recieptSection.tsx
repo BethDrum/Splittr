@@ -22,7 +22,7 @@ export default function recieptSection({food, cost}: iRecieptSection) {
 }
 
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
     mainCard: {
         flex: 1,
         backgroundColor: '#FFFDF2',

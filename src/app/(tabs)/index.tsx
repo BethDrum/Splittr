@@ -1,141 +1,128 @@
-import * as ImagePicker from 'expo-image-picker';
-import * as MediaLibrary from 'expo-media-library/legacy';
 import { useRouter } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
-import { ImageSourcePropType, StyleSheet, View } from 'react-native';
-import { captureRef } from 'react-native-view-shot';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
+import Button from '@/components/button';
 import Card from '@/components/card';
+import ReceiptCard from '@/components/recieptCard';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState } from 'react';
 
+interface Person {
+  id: string;
+  name: string;
+}
 
-const PlaceholderImage = require('@/assets/images/background-image.jpg');
+interface Item {
+  id: string;
+  food: string;
+  cost: string;
+}
+
+interface Receipt {
+  id: string;
+  name: string;
+  date: string;
+  people: Person[];
+  modifiedItems: Item[];
+}
 
 export default function Index() {
   const router = useRouter();
+  //for any names & dates recieved
 
-  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
-  const [showAppOptions, setShowAppOptions] = useState<boolean>(false);
-  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-  const [pickedEmoji, setPickedEmoji] = useState<ImageSourcePropType | undefined>(undefined)
-  const [permissionResponse, requestPermission] = ImagePicker.useMediaLibraryPermissions();
-  const imageRef = useRef<any>(null);
+  const goToSetUp = () => {
+    router.push({pathname: '/setup'});
+  }
 
-  /*Image picker code */
-  const pickImageAsync = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      /*Let user crop image on selection */
-      allowsEditing: true,
-      quality: 1,
-    });
-
-    if (!result.canceled){
-      setSelectedImage(result.assets[0].uri);
-      setShowAppOptions(true);
-    } else { 
-      alert('You did not select any image.');
+  //get data in for viewing saved places
+  const [allReciepts, setAllReciepts] = useState<Receipt[]>([])
+  const gatherReciepts = async () => {
+    try{
+      //get existing events from local storage and split into its seperate events
+      const tempAllReciepts = await AsyncStorage.getItem('allReciepts');
+      const allRecieptsVal: Receipt[] = tempAllReciepts ? JSON.parse(tempAllReciepts) : [];
+      setAllReciepts(allRecieptsVal)
+      //this is now ready to split
+    }catch (error){
+      console.error('Error on gathering reciept data from storage: ', error)
     }
-  };
+  }
+  
+  const display = (id: string) => {
+    router.push({pathname: '/shareReciept', params: {mode: 'saved', receiptId: id}})
+  }
 
-  const onReset = () => {
-    setShowAppOptions(false);
-  };
+  const viewDate = (receipt: Receipt) => {
+    //send this specific receipt to share to view
 
-  const onAddSticker = () => {
-    setIsModalVisible(true);
-  };
-
-  const onModalClose = () => {
-    setIsModalVisible(false);
-  };
-
-  const onSaveImageAsync = async () => {
-    try {
-      const localUri = await captureRef(imageRef.current as any, {
-        height: 440,
-        quality: 1,
-      });
-
-      await MediaLibrary.saveToLibraryAsync(localUri);
-      if (localUri) {
-        alert('Saved!');
-      }
-    } catch (e) {
-      console.log(e);
-    }
-  };
+  }
 
   useEffect(() => {
-    if (!permissionResponse?.granted){
-      requestPermission();
-    }
-  }, []);
+    gatherReciepts();
+  }, [])
 
   return (
-    // <GestureHandlerRootView style={styles.container}>
-      <View style={styles.container}>
-        <View ref={imageRef} style={styles.imageContainer} collapsable={false}>
-          <Card theme="primary" onPress={() => router.navigate('/(tabs)/viewReciept')}/>
-          {/* <ImageViewer imgSource={PlaceholderImage} selectedImage={selectedImage} /> */}
-          {/* {pickedEmoji && <EmojiSticker imageSize={40} stickerSource={pickedEmoji} />} */}
-        </View>
-        <View style={styles.listOfCards}>
-          <Card onPress={pickImageAsync}/>
-          <Card onPress={pickImageAsync}/>
-          <Card onPress={pickImageAsync}/>
-        </View>
-        {/* {showAppOptions ? (
-          //options for adding emoji - has reset and save with according icons
-          <View style={styles.optionsContainer}>
-            <View style={styles.optionsRow}>
-              <IconButton icon="refresh" label="Reset" onPress={onReset}/>
-              <CircleButton onPress={onAddSticker} />
-              <IconButton icon="save-alt" label="Save" onPress={onSaveImageAsync} />
-            </View>
-          </View>
-        ) : (  
-          <View style={styles.footerContainer}>
-            <Button theme="primary" label="Choose a photo" onPress={pickImageAsync} />
-            <Button theme="primary" label="Use this photo" onPress={() => setShowAppOptions(true)}/>
-          </View>
-        )}
-        <EmojiPicker isVisable={isModalVisible} onClose={onModalClose}>
-          <EmojiList onSelect={setPickedEmoji} onCloseModal={onModalClose} />
-        </EmojiPicker> */}
+    <View style={styles.container}>
+      <View style={{marginTop: '5%'}}></View>
+      <View style={styles.imageContainer} collapsable={false}>
+        <Card theme="primary" onPress={goToSetUp}/>
       </View>
-    // </GestureHandlerRootView>
+
+      <View style={styles.dottedLine}>
+          {Array.from({ length: 50 }).map((_, i) => (
+              <View key={i} style={styles.singleDot}/>
+          ))}
+      </View>
+
+      <ScrollView style={styles.scroll} showsVerticalScrollIndicator={true} persistentScrollbar={true}>
+        <View style={styles.listOfCards}>
+          {allReciepts.map(receipt => (
+            <ReceiptCard key={receipt.id} onPress={() => display(receipt.id)} name={receipt.name} date={receipt.date}/>
+          ))}
+        </View>
+      </ScrollView>
+      <View style={{margin: '5%'}}>
+          <Button theme='confirm' label='ADD NEW RECEIPT +' onPress={goToSetUp}/>
+      </View>
+    </View>
   );
 }
 
+
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: '#FFFDF2',
     alignItems: "center",
+    height: '100%'
   },
   listOfCards: {
-    flex: 2,
-    width: '90%',
-    marginTop: '5%',
+    width: '95%',
+    marginTop: '0%',
+    paddingTop: '0%',
+    alignSelf: 'center',
   },
   imageContainer: {
-    flex: 1,
     width: '90%',
+    height: '30%',
   },
-  
-  // text: {
-  //   color: '#fff'
-  // },
-  // footerContainer: {
-  //   flex: 1/3,
-  //   alignItems: 'center',
-  // },
-  // optionsContainer: {
-  //   position: 'absolute',
-  //   bottom: 80,
-  // },
-  // optionsRow: {
-  //   alignItems: 'center',
-  //   flexDirection: 'row',
-  // },
+  dottedLine: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    paddingTop: '5%',
+    width: '100%',
+    alignItems: 'flex-start',
+    marginBottom: '0.2%',
+  },
+  singleDot:{
+    width: 6,
+    height: 2,
+    backgroundColor: '#4F4F4F',
+    borderRadius: 1,
+  },
+  scroll: {
+    width: '100%',
+    height: '65%',
+    alignSelf: 'center'
+  }
 });
