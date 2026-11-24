@@ -1,6 +1,6 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
 import { useCallback, useRef, useState } from 'react';
 import { Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SwipeableMethods } from 'react-native-gesture-handler/lib/typescript/components/ReanimatedSwipeable';
@@ -130,9 +130,9 @@ export default function Setup() {
 
     // store data
       try{
-          await AsyncStorage.setItem('people', JSON.stringify(person));
-          await AsyncStorage.setItem('name', JSON.stringify(title)); 
-          await AsyncStorage.setItem('date', JSON.stringify(date)); 
+          await SecureStore.setItemAsync('people', JSON.stringify(person));
+          await SecureStore.setItemAsync('name', JSON.stringify(title)); 
+          await SecureStore.setItemAsync('date', JSON.stringify(date)); 
           console.log('saved')
           Haptics.notificationAsync(
             Haptics.NotificationFeedbackType.Success

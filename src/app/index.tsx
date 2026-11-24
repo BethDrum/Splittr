@@ -1,6 +1,6 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
 import { useEffect, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -45,7 +45,7 @@ export default function Index() {
   const gatherReciepts = async () => {
     try{
       //get existing events from local storage and split into its seperate events
-      const tempAllReciepts = await AsyncStorage.getItem('allReciepts');
+      const tempAllReciepts = await SecureStore.getItemAsync('allReciepts');
       const allRecieptsVal: Receipt[] = tempAllReciepts ? JSON.parse(tempAllReciepts) : [];
       //set all receipts
       setAllReciepts(allRecieptsVal)
@@ -142,7 +142,7 @@ const createStyles = (theme: typeof themes.default) => StyleSheet.create({
   singleDot:{
     width: 6,
     height: 2,
-    backgroundColor: theme.secondaryTextColor,
+    backgroundColor: theme.primaryTextColor,
     borderRadius: 1,
   },
   scroll: {

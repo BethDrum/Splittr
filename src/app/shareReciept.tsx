@@ -1,6 +1,6 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
 import { useEffect, useState } from 'react';
 import { Alert, Image, Pressable, Share, StyleSheet, Text, View } from 'react-native';
 
@@ -59,7 +59,7 @@ export default function shareReciept(){
     const getItem = async (key: string) => {
         try {
             //get in all reciepts
-            const tempAllReciepts = await AsyncStorage.getItem('allReciepts');
+            const tempAllReciepts = await SecureStore.getItemAsync('allReciepts');
             const receipts = tempAllReciepts ? JSON.parse(tempAllReciepts) : [];
 
             //find specific reciept
@@ -87,9 +87,9 @@ export default function shareReciept(){
     //to recieve name and date to display & (if selected) saved in the group - for if sent in from newly created receipt
     const getNameDatePeople = async () => {
         try{
-        const storedName = await AsyncStorage.getItem('name')
-        const storedDate = await AsyncStorage.getItem('date')
-        const storedPeople = await AsyncStorage.getItem('people')
+        const storedName = await SecureStore.getItemAsync('name')
+        const storedDate = await SecureStore.getItemAsync('date')
+        const storedPeople = await SecureStore.getItemAsync('people')
 
         setName(storedName ? JSON.parse(storedName) : '');
         setDate(storedDate ? JSON.parse(storedDate) : '')
@@ -153,14 +153,14 @@ export default function shareReciept(){
 
         try{
             //get existing events from local storage and split into its seperate events
-            const tempAllReciepts = await AsyncStorage.getItem('allReciepts');
+            const tempAllReciepts = await SecureStore.getItemAsync('allReciepts');
             const allReciepts = tempAllReciepts ? JSON.parse(tempAllReciepts) : [];
 
             //push new data onto the reciepts
             allReciepts.push(allData)
 
             //store intire array into local storage
-            await AsyncStorage.setItem('allReciepts', JSON.stringify(allReciepts));
+            await SecureStore.setItemAsync('allReciepts', JSON.stringify(allReciepts));
             //alert complete and set saved as true to no longer show save button
             alert('data saved')
             setSaved(true)
@@ -178,13 +178,13 @@ export default function shareReciept(){
         )
         try{
             //get in all reciepts
-            const tempAllReciepts = await AsyncStorage.getItem('allReciepts');
+            const tempAllReciepts = await SecureStore.getItemAsync('allReciepts');
             const allReciepts = tempAllReciepts ? JSON.parse(tempAllReciepts) : [];
 
             //find specific reciept and remove it using id
             const updated = allReciepts.filter((r: {id: string}) => r.id !== currentReceiptID);
             
-            await AsyncStorage.setItem('allReciepts', JSON.stringify(updated))
+            await SecureStore.setItemAsync('allReciepts', JSON.stringify(updated))
 
             setSaved(false);
             alert('Delteted')

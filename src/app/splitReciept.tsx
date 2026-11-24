@@ -1,6 +1,6 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
 import { useEffect, useRef, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -67,9 +67,8 @@ export default function App() {
   //get people names for each section
   const getPeople = async () => {
     try{
-    const storedPeople = await AsyncStorage.getItem('people')
+    const storedPeople = await SecureStore.getItemAsync('people')
     setPeople(JSON.parse(storedPeople as string));
-    console.log('People', people)
     } catch (error) {
       console.error('Error when gathering information: ', error)
     }
