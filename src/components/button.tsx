@@ -61,7 +61,7 @@ export default function Button({ label, theme, onPress }: Props) {
             <View
             style={[
                 styles.buttonWrapper,
-                { backgroundColor: '#C8D3B7'},
+                { backgroundColor: '#EBACAD'},
             ]}>
             <Pressable onPress={onPress} style={styles.group}>
                 <Image style={styles.iconS} source={require('../../assets/images/icons/Share.png')} />
@@ -74,7 +74,7 @@ export default function Button({ label, theme, onPress }: Props) {
             <View
             style={[
                 styles.buttonWrapper,
-                { backgroundColor: '#C8D3B7'},
+                { backgroundColor: '#EBACAD'},
             ]}>
             <Pressable onPress={onPress} style={styles.group}>
                 <Image style={styles.iconS} source={require('../../assets/images/icons/Save.png')} />

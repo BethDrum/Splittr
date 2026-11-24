@@ -1,11 +1,16 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Alert, Share, StyleSheet, Text, View } from 'react-native';
+import { Alert, Image, Pressable, Share, StyleSheet, Text, View } from 'react-native';
 
+//local imports
 import Button from '@/components/button';
 import Modal from '@/components/modal';
+import { useTheme } from '../themes/themeSwitcher';
+import { themes } from '../themes/themes';
 
+//setup objects
 type People = {
   id: string;
   name: string;
@@ -21,29 +26,36 @@ interface Receipt {
 }
 
 export default function shareReciept(){
-    //SET VARIABLES
+    //setup relavent variables
+    //for changable themes
+    const { theme, themeName, toggleTheme } = useTheme();
+    const styles = createStyles(theme);
+    const icon = themeName === 'highContrast' ? require('../../assets/images/icons/darkToLight.png') : require('../../assets/images/icons/lightToDark.png');
     //recieve data from splitReciept.tsx
     const { mode, totals, receiptId } = useLocalSearchParams();
-    
     //totalItems state for base item costs
     const [totalItems, setTotalItems] = useState<number[]>([]);
     //and  create modified ver for serive charge addition
     const [modifiedItems, setModifiedItems] = useState<number[]>([]);
-
     //keep track of if the data has been saved or not
     const [save, setSaved] = useState(false);
-
     //relevent data to display
     const [currentReceiptID, setCurrentReceiptId] = useState<string>('');
     const [name, setName] = useState('');
     const [date, setDate] = useState('');
     const [people, setPeople] = useState<People[]>([]);
-
-
     //for reading im saved data
     const [allReciepts, setAllReciepts] = useState<Receipt[]>([]);
+    //for maths operations in service charge and discount
+    const roundToTwo = (num: number): number => Math.round((num + Number.EPSILON) * 100) / 100;
+    const lengthOfTotal = Math.ceil((totalItems ||[]).length);
+    //For service charge:
+    const [serviceCharge, setServiceCharge] = useState(0);
+    //calculate new ID
+    const newId = Math.random().toString();
 
-    //get data - if only the object is passed in (it is from a locally stored object, not currently created)
+
+    //get data - if only the key is passed in (it is from a locally stored object, not currently created)
     const getItem = async (key: string) => {
         try {
             //get in all reciepts
@@ -52,8 +64,7 @@ export default function shareReciept(){
 
             //find specific reciept
             const specificReceipt = receipts.find((r: Receipt) => r.id === key);
-
-            console.log(allReciepts)
+            //error check for if reciept dosent exist
             if (!specificReceipt) {
                 console.log('Receipt not found');
                 return;
@@ -67,14 +78,13 @@ export default function shareReciept(){
             setModifiedItems(specificReceipt.modifiedItems)
             setTotalItems(specificReceipt.totalItems)
             setSaved(true)
-            //return value != null ? JSON.parse(value) : null;
         } catch (error) {
             console.error('Error getting item:', error);
             return null;
         }
     };
 
-    //to recieve name and date to display & (if selected) saved in the group
+    //to recieve name and date to display & (if selected) saved in the group - for if sent in from newly created receipt
     const getNameDatePeople = async () => {
         try{
         const storedName = await AsyncStorage.getItem('name')
@@ -91,91 +101,37 @@ export default function shareReciept(){
         }
     }
 
-    //for maths operations in service charge and discount
-    const roundToTwo = (num: number): number => Math.round((num + Number.EPSILON) * 100) / 100;
-    const lengthOfTotal = Math.ceil((totalItems ||[]).length);
-
-    //For service charge:
-    const [serviceCharge, setServiceCharge] = useState(0);
-
+    //function to add the service charge
     const addService = () => {
         console.log(serviceCharge);
         //check if 0
         if (serviceCharge === 0) return;
 
         const splitAmount = (roundToTwo(serviceCharge / lengthOfTotal));
-        console.log(splitAmount);
         //update items to include service charge
         setModifiedItems(
             totalItems.map(item => item + splitAmount)
         );
     }
 
-    //for discount
-    // const [discount, setDiscount] = useState(0);
-
-    // const addDiscount = () => {
-    //     //data comes in like 50 for 50%
-
-    //     //calculate what to * all by
-    //     const discountAmount = discount / 100;
-    //     //update all items to include the discount
-    //     setModifiedItems(
-    //         totalItems.map(item => item * discountAmount)
-    //     );
-    // }
-
-
     //to share the data
     const onShare = async () => {
         try {
-        const result = await Share.share({
+            //message to send, includes all data for the receipt
+            const result = await Share.share({
             message:
             'The split reciept is as follows: \n' +
             modifiedItems.map((amount, index) => `Name: £${amount}`).join('\n')
         });
 
-        if (result.action === Share.sharedAction) {
-            if (result.activityType) {
-            // shared with activity type of result.activityType
-            } else {
-            // shared
-            }
-        } else if (result.action === Share.dismissedAction) {
-            // dismissed
-        }
         } catch (error: any) {
         Alert.alert(error.message);
         }
     };
 
-    //set totals to total & modefied items
-    useEffect(() => {
-        if (totals) {
-            const tempTotalItems: number[] = JSON.parse(totals as string);
-            setTotalItems(tempTotalItems);
-            setModifiedItems(tempTotalItems);
-        }
-    }, [totals]);
-
-    //run add service when serviceCharge is updated
-    useEffect(() => {
-        addService();
-    }, [serviceCharge, totalItems]);
-
-    //get information when the page has started (either from creation or, locally stored)
-    useEffect(() => {
-        if (mode === 'saved') {
-            getItem(receiptId as string);
-        }else{
-            getNameDatePeople();
-        }
-    }, []);
-
-    const newId = Math.random().toString();
-
-    //save information to device
+    //save information to local storage device
     const saveData = async () => {
+        //initialise object to store all info in
         const allData = {
             id: newId,
             name,
@@ -184,7 +140,7 @@ export default function shareReciept(){
             modifiedItems,
             totalItems,
         }
-        console.log(JSON.stringify(allData, null, 2));
+
         try{
             //get existing events from local storage and split into its seperate events
             const tempAllReciepts = await AsyncStorage.getItem('allReciepts');
@@ -199,7 +155,6 @@ export default function shareReciept(){
             alert('data saved')
             setSaved(true)
             setCurrentReceiptId(newId)
-            console.log('saved')
         }catch (error){
             console.error('Error saving data: ', error)
         }
@@ -225,12 +180,46 @@ export default function shareReciept(){
     };
 
     const goToHome = () => {
+        //haptic feedback
+        Haptics.notificationAsync(
+            Haptics.NotificationFeedbackType.Success
+        )
         router.push({pathname: '/'});
     }
+
+    //set totals to total & modefied items whenever totals is modefied 
+    useEffect(() => {
+        if (totals) {
+            const tempTotalItems: number[] = JSON.parse(totals as string);
+            setTotalItems(tempTotalItems);
+            setModifiedItems(tempTotalItems);
+        }
+    }, [totals]);
+
+    //run add service when serviceCharge or totalItems is updated
+    useEffect(() => {
+        addService();
+    }, [serviceCharge, totalItems]);
+
+    //get information when the page has started (either from creation or, locally stored)
+    useEffect(() => {
+        if (mode === 'saved') {
+            getItem(receiptId as string);
+        }else{
+            getNameDatePeople();
+        }
+    }, []);
+
     return(
         //display all persons data in the style of a reciept
         <View style={styles.main}>
-            <View style={{marginTop: '5%'}}></View>
+            {/* alter theme switch */}
+            <Pressable onPress={toggleTheme} style={styles.imageSec}>
+                <Image style={styles.image} source={icon} />
+                <Text style={styles.note}>   Change theme</Text>
+            </Pressable> 
+
+            <View style={{marginTop: '10%'}}></View>
             <View style={styles.reciept}>
                 {/* title */}
                 <Text style={styles.textPrimary}>{name}</Text>
@@ -283,13 +272,13 @@ export default function shareReciept(){
 
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: typeof themes.default) => StyleSheet.create({
   main: {
-    backgroundColor: '#D4E0F3',
+    backgroundColor: theme.secondaryBackground,
     height: '100%',
   },
   reciept: {
-    backgroundColor: '#FFFDF2',
+    backgroundColor: theme.mainBackground,
     minHeight: "40%",
     width: "90%",
     alignSelf: 'center',
@@ -297,13 +286,13 @@ const styles = StyleSheet.create({
     padding: '5%',
   },
   textPrimary: {
-    color: '#4F4F4F',
+    color: theme.primaryTextColor,
     fontFamily: 'lucida grande',
     fontWeight: 'bold',
     fontSize: 30,
   },
   textSecondary: {
-    color: '#4F4F4F',
+    color: theme.primaryTextColor,
     fontFamily: 'lucida grande',
     fontWeight: 'bold',
     fontSize: 25,
@@ -317,14 +306,14 @@ const styles = StyleSheet.create({
     singleDot:{
         width: 6,
         height: 2,
-        backgroundColor: '#4F4F4F',
+        backgroundColor: theme.primaryTextColor,
         borderRadius: 1,
     },
     textSection:{
         flex: 1,
         flexDirection: 'row',
         justifyContent: 'space-between',
-        color: '#4F4F4F',
+        color: theme.primaryTextColor,
         minHeight: '6%',
     },
     rippedLine: {
@@ -336,7 +325,7 @@ const styles = StyleSheet.create({
     rip:{
         width: 20,
         height: 20,
-        backgroundColor: '#D4E0F3',
+        backgroundColor: theme.secondaryBackground,
         transform: [{
             rotate: '40deg'
         }]
@@ -347,5 +336,23 @@ const styles = StyleSheet.create({
     buttonSection: {
         maxHeight: '60%',
         minHeight: '32%',
+    },
+    imageSec: {
+        position: 'absolute',
+        left: 15,
+        top: 10,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    image: {
+        width: 50,
+        height: 50,
+        zIndex: 999,
+    },
+    note: {
+        color: theme.primaryTextColor,
+        fontFamily: 'lucida grande',
+        fontWeight: 'bold',
+        fontSize: 15,
     }
 });

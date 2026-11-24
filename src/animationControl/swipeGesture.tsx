@@ -6,16 +6,12 @@ import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimat
 interface SwipeGestureProps {
   children: React.ReactNode;
   onRemove: () => void;
+  onEdit?: () => void;
   onOpen: (row: SwipeableMethods | null) => void;
 }
 
 //row that swipes
-function DeleteAction({
-  drag, onPress,
-  }: {
-    drag: SharedValue<number>;
-    onPress: () => void;
-  }) {
+function DeleteAction({ drag, onPress}: { drag: SharedValue<number>; onPress: () => void; }) {
     //drag is negative as going left
     const animatedStyle = useAnimatedStyle(() => ({
       transform: [{ translateX: drag.value + 80 }],
@@ -30,7 +26,22 @@ function DeleteAction({
     );
   }
 
-  export default function SwipeGesture({ children, onRemove, onOpen }: SwipeGestureProps) {
+  function EditAction({drag, onPress} : {drag: SharedValue<number>; onPress: () => void; }){
+    //make drag positive as card is going right
+    const animatedStyle = useAnimatedStyle(() => ({
+      transform: [{translateX: drag.value - 80}]
+    }));
+
+    return (
+      <Reanimated.View style={[styles.actionWrap, animatedStyle]}>
+        <Pressable style={styles.action} onPress={onPress}>
+        <Text style={styles.actionText}>Edit</Text>
+        </Pressable>
+      </Reanimated.View>
+    )
+  }
+
+  export default function SwipeGesture({ children, onRemove, onEdit, onOpen }: SwipeGestureProps) {
     const rowRef = useRef<SwipeableMethods | null>(null);
 
     return (
@@ -47,6 +58,12 @@ function DeleteAction({
           onPress={onRemove}
         />
       )}
+      renderLeftActions={(_progress, drag) => (
+        <EditAction
+          drag={drag}
+          onPress={onEdit ?? (() => {})}
+        />
+      )}
     >
     <View style={styles.swipeCard}>
       {children}
@@ -61,7 +78,7 @@ const styles = StyleSheet.create({
   },
   action: {
     flex: 1,
-    backgroundColor: '#dc2626',
+    backgroundColor: '#e16565',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,

@@ -1,3 +1,4 @@
+// import { ColorPicker, Host } from '@expo/ui/swift-ui';
 import { useState } from 'react';
 import { Alert, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
@@ -11,8 +12,7 @@ type Props = {
 export default function NewPersonModal({onSubmitObject,}: Props){
   const [modalVisible, setModalVisible] = useState(false);
   const [text, onChangeText] = useState("");
-  const [cost, onChangeCost] = useState('');
-
+//   const [colour, setColour] = useState('#f1c0b8');
 
 
   const submitText = () => {
@@ -59,6 +59,14 @@ export default function NewPersonModal({onSubmitObject,}: Props){
                 value={text}
                 placeholder= 'Enter name of the person...' /> 
                 </View>
+
+                {/* <Host style={{ flex: 1 }}>
+                    <ColorPicker
+                        label="Select a color for this person"
+                        selection={colour}
+                        onSelectionChange={setColour}
+                    />
+                </Host> */}
                 
 
                 <View>
