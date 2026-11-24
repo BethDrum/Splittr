@@ -1,48 +1,75 @@
+import DateTimePicker from '@react-native-community/datetimepicker';
+import * as Haptics from 'expo-haptics';
 import { useState } from 'react';
-import { Alert, Modal, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
+//local imports
+import { useTheme } from '../themes/themeSwitcher';
+import { themes } from '../themes/themes';
 import Button from './button';
 
 
-//TODO: update date to save as date value, add optional image
-
 type Props = {
-    onSubmitObject: (name: string, date: string, p1name: string, p2name: string) => void;
+    onSubmitObject: (
+        name: string, 
+        date: string, 
+        p1name: string, 
+        p2name: string
+    ) => void;
 };
 
 export default function NameDateModal({onSubmitObject}: Props){
+    //set relevant variables
   const [modalVisible, setModalVisible] = useState(true);
   const [modalTwoVisible, setModalTwoVisible] = useState(false);
   //general info
   const [name, onSetName] = useState("");
-  //change to date value in future!!!
-  const [date, onSetDate] = useState("");
+  const [date, onSetDate] = useState(new Date());
 
-  //person 1 and person 2, name and image info
+  const [showDate, setShowDate] = useState(false);
+  const [dateSelected, setDateSelected] = useState(false);
+
+  //person 1 and person 2, name  info
   const [p1name, onSetP1Name] = useState("");
-  const [p1image, onSetP1Image] = useState("");
   const [p2name, onSetP2Name] = useState("");
-  const [p2image, onSetP2Image] = useState("");
+
+  //for changable themes
+  const { theme, themeName, toggleTheme } = useTheme();
+  const styles = createStyles(theme);
+
 
   //first page, ask for name and date
   //next button to set up person 1 then person 2
   //option seperatly to add 1 person
 
   const submit = () => {
+    //haptic feedback
+    Haptics.notificationAsync(
+        Haptics.NotificationFeedbackType.Success
+    )
+    
     if (!p1name.trim() || !p2name.trim()) {
         Alert.alert('Please enter information in all fields.');
         return;
     }
-    onSubmitObject(name, date, p1name, p2name);
+    //convert date to string
+    const stringifyDate = date.toLocaleDateString('en-GB');
+
+    onSubmitObject(name, stringifyDate, p1name, p2name);
     setModalTwoVisible(false);
     onSetName('');
-    onSetDate('');
+    onSetDate(new Date());
   };
 
   const next = () => {
+    //haptic feedback
+    Haptics.notificationAsync(
+        Haptics.NotificationFeedbackType.Success
+    )
+
     //check data is present
-    if (!name.trim() || !date.trim()) {
+    if (!name.trim()) {
         Alert.alert('Please enter information in all fields.');
         return;
     }
@@ -78,15 +105,24 @@ export default function NameDateModal({onSubmitObject}: Props){
                 </View>
                 
                 <View style={styles.row}>
-                <Text style={styles.textPrimary}>Date: </Text>
-                <TextInput style={styles.input} 
-                value={date}
-                onChangeText={onSetDate} 
-                placeholder='DD/MM/YYYY'
+                <Text style={styles.textSecondary}>Date:</Text>
+                <TouchableOpacity onPress={() => setShowDate(true)}>
+                    <View style={styles.dateText}>
+                        <Text style={[styles.textInput, {color: dateSelected ? '#000': '#999'}]}>{dateSelected ? date.toLocaleDateString('en-GB') : 'Click to enter date'}</Text>
+                    </View>
+                </TouchableOpacity>
+
+                {showDate && (
+                <DateTimePicker 
+                    value={date}
+                    mode="date"
+                    display="default"
+                    onChange={(event, selectedDate) => {setShowDate(false); if (selectedDate) {onSetDate(selectedDate); setDateSelected(true)}}}
                 /> 
+                )}
                 </View>
                 <View>
-                    <Button theme='submit' label='NEXT STEP ->' onPress={next}/>
+                    <Button buttonTheme='submit' label='NEXT STEP ->' onPress={next}/>
                 </View>
             </View>
             </View>
@@ -109,7 +145,7 @@ export default function NameDateModal({onSubmitObject}: Props){
         
 
                 <Text style={styles.textPrimary}>{name}</Text>
-                <Text style={styles.textPrimary}>{date}</Text>
+                <Text style={styles.textPrimary}>{date.toLocaleDateString('en-GB')}</Text>
                 <Text style={styles.textPrimary}>Please enter the information for the initial two people to split the bill between: </Text>
             
                 <View style={styles.inputSection}>
@@ -132,7 +168,7 @@ export default function NameDateModal({onSubmitObject}: Props){
                     </View>
                     
                     <View>
-                        <Button theme='submit' label='SUBMIT' onPress={submit}/>
+                        <Button buttonTheme='submit' label='SUBMIT' onPress={submit}/>
                     </View>
                 </View>
                 </View>
@@ -143,7 +179,7 @@ export default function NameDateModal({onSubmitObject}: Props){
     );
 }
 
-    const styles = StyleSheet.create({
+const createStyles = (theme: typeof themes.default) => StyleSheet.create({
   centeredView: {
     flex: 1,
     justifyContent: 'center',
@@ -151,8 +187,8 @@ export default function NameDateModal({onSubmitObject}: Props){
   },
   modalView: {
     margin: 20,
-    backgroundColor: '#FFFDF2',
-    borderColor: '#E3E1D5',
+    backgroundColor: theme.mainBackground,
+    borderColor: theme.borderColour,
     borderWidth: 5,
     minHeight: '30%',
     minWidth: '50%',
@@ -169,13 +205,13 @@ export default function NameDateModal({onSubmitObject}: Props){
     elevation: 5,
   },
   textPrimary: {
-    color: '#4F4F4F',
+    color: theme.primaryTextColor,
     fontFamily: 'lucida grande',
     fontWeight: 'bold',
     fontSize: 30,
   },
   textSecondary: {
-    color: '#4F4F4F',
+    color: theme.primaryTextColor,
     fontFamily: 'lucida grande',
     fontWeight: 'bold',
     fontSize: 25,
@@ -203,5 +239,16 @@ export default function NameDateModal({onSubmitObject}: Props){
     justifyContent: 'space-evenly',
     padding: 10,
   },
-
+  dateText: {
+    backgroundColor: 'white',
+    borderColor: 'black',
+    borderWidth: 1,
+    width: 250,
+    height: '80%',
+    justifyContent: 'center'
+  },
+  textInput: {
+    color: theme.noteText,
+    fontSize: 13,
+  }
 });

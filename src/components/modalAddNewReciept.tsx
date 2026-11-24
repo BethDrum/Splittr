@@ -1,25 +1,34 @@
+import * as Haptics from 'expo-haptics';
 import { useState } from 'react';
 import { Alert, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
+//local imports
+import { useTheme } from '../themes/themeSwitcher';
+import { themes } from '../themes/themes';
 import Button from './button';
+
 
 type Props = {
     onSubmitObject: (text: string, cost: number) => void;
 };
 
 export default function ModalReciept({onSubmitObject}: Props){
+    //create relavent variables
   const [modalVisible, setModalVisible] = useState(false);
   const [text, onChangeText] = useState("");
   const [cost, onChangeCost] = useState('');
+    //for changable themes
+    const { theme, themeName, toggleTheme } = useTheme();
+    const styles = createStyles(theme);
 
-  //clean up cost & add £ symbol
-//   const cleanCost = (cost: string) => {
-//     onChangeCost(cost.replace('£', '') || 0);
-//     // onChangeCost(`£${clean}`);
-//   };
-
+    //submit function to send data back & clear fields for next open
   const submitText = () => {
+    //haptic feedback
+    Haptics.notificationAsync(
+    Haptics.NotificationFeedbackType.Success
+    )
+
     if (!text.trim() || !cost.trim()) {
         Alert.alert('Please enter information in all fields.');
         return;
@@ -29,7 +38,8 @@ export default function ModalReciept({onSubmitObject}: Props){
     onChangeCost('');
     onChangeText('');
   };
-  
+
+    //used when adding a new item
     return(
     <SafeAreaProvider>
     <SafeAreaView style={styles.centeredView}>
@@ -53,8 +63,6 @@ export default function ModalReciept({onSubmitObject}: Props){
         >
         
         {/* modal content */}
-        {/* <View style={styles.centeredView}>
-            <View style={styles.modalView}> */}
 
 
             <Text style={styles.textPrimary}>Add new item</Text>
@@ -78,20 +86,20 @@ export default function ModalReciept({onSubmitObject}: Props){
                 keyboardType='numeric'/> 
                 </View>
                 <View>
-                    <Button theme='submit' label=' Submit' onPress={submitText}/>
+                    <Button buttonTheme='submit' label=' Submit' onPress={submitText}/>
                 </View>
             </View>
             </Pressable>
         </Pressable>
         </Modal>
 
-        <Button theme='addOption' label='ADD NEW ITEM' onPress={() => setModalVisible(true)}/>
+        <Button buttonTheme='action' label='ADD NEW ITEM' onPress={() => setModalVisible(true)}/>
         </SafeAreaView>
     </SafeAreaProvider>
     );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: typeof themes.default) => StyleSheet.create({
   centeredView: {
     flex: 1,
     justifyContent: 'center',
@@ -99,8 +107,8 @@ const styles = StyleSheet.create({
   },
   modalView: {
     margin: 20,
-    backgroundColor: '#FFFDF2',
-    borderColor: '#E3E1D5',
+    backgroundColor: theme.mainBackground,
+    borderColor: theme.borderColour,
     borderWidth: 5,
     minHeight: '30%',
     minWidth: '50%',
@@ -117,7 +125,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   textPrimary: {
-    color: '#4F4F4F',
+    color: theme.primaryTextColor,
     fontFamily: 'lucida grande',
     fontWeight: 'bold',
     fontSize: 30,

@@ -1,46 +1,39 @@
-//import { DatePicker, Host } from '@expo/ui/swift-ui';
+import * as Haptics from 'expo-haptics';
+import { router } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
 import { useCallback, useRef, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { SwipeableMethods } from 'react-native-gesture-handler/lib/typescript/components/ReanimatedSwipeable';
 
+//imports from local files
 import SwipeGesture from '@/animationControl/swipeGesture';
 import Button from '@/components/button';
 import NameDateModal from '@/components/nameDateModal';
 import NewPersonModal from '@/components/newPersonModal';
 import PersonCard from '@/components/personCard';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { router } from 'expo-router';
-import { SwipeableMethods } from 'react-native-gesture-handler/lib/typescript/components/ReanimatedSwipeable';
-
-//guest that has a name and optional image
-type Person = {
-    id: string;
-    name: string;
-    image?: string;
-};
+import { useTheme } from '../themes/themeSwitcher';
+import { themes } from '../themes/themes';
 
 export default function Setup() {
-  //people states - one setup for two inital people
+  //for changable themes
+  const { theme, themeName, toggleTheme } = useTheme();
+  const styles = createStyles(theme);
+  const icon = themeName === 'highContrast' ? require('../../assets/images/icons/darkToLight.png') : require('../../assets/images/icons/lightToDark.png');
+
+  //state values 
   const [person, setPerson] = useState<({id: string, name: string}[])>([]);
-  const [name, setName] = useState('');
-  //const [date, changeDate] = useState(new Date());
+  const [title, setTitle] = useState('');
   const [date, setDate] = useState('');
+  //open reference for swiping functionality (used in edit and delete)
+  const openRef = useRef<SwipeableMethods | null>(null);
 
+  //for the edit modal
+  const [modalVisible, setModalVisible] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [newPersonAdd, setNewPersonAdd] = useState('');
 
-   //delete function
-    const handleDelete = (id: string) => {
-        if (person.length <= 2){
-            alert('There must be a minimum of 2 people to split between');
-            return;
-        }
-        setPerson((current) =>
-            current.filter(item => item.id !== id)
-        );
-    };
-  
-    //open for delete
-    const openRef = useRef<SwipeableMethods | null>(null);
-
-    const registerOpen = useCallback(
+  //swipe open functionality 
+  const registerOpen = useCallback(
     (row: SwipeableMethods | null) => {
         if (openRef.current && openRef.current !== row){
         openRef.current.close()
@@ -50,99 +43,227 @@ export default function Setup() {
     []
     );
 
-    //add all new information from initial modals
-    const addInfo = (newName: string, newDate: string, p1: string, p2: string) => {
-        setName(newName);
-        setDate(newDate);
-        setPerson(prev => [
-            ...prev,
-            { id: Math.random().toString(), name: p1 },
-            { id: Math.random().toString(), name: p2 },
-        ]);
-        console.log(person)
+   //delete function
+  const handleDelete = (id: string) => {
+    //haptic feedback
+    Haptics.notificationAsync(
+      Haptics.NotificationFeedbackType.Error
+    )
+    //ensure that there are at least 2 people (person limit is 2-4)
+    if (person.length <= 2){
+        alert('There must be a minimum of 2 people to split between');
+        return;
     }
+    //use filter to find and delete using the id
+    setPerson((current) =>
+        current.filter(item => item.id !== id)
+    );
+  };
 
-    //when adding a new person
-    const newPerson = (newName: string) => {
-        setPerson(prev => [
-            ...prev,
-            { id: Math.random().toString(), name: newName },
-        ]);
-    }
+  //setup edit
+  const handleEdit = (id: string) => {
+    //haptic feedback
+    Haptics.notificationAsync(
+      Haptics.NotificationFeedbackType.Success
+    )
+    if (modalVisible) return;
 
-    //store data and go to viewReciept.tsx
-    const goToReciept = async () => {
-      // store data
-        try{
-            await AsyncStorage.setItem('people', JSON.stringify(person));
-            await AsyncStorage.setItem('name', JSON.stringify(name)); 
-            await AsyncStorage.setItem('date', JSON.stringify(date)); 
-            console.log('saved')
-        }catch (error){
-            console.error('Error saving data: ', error)
-        }
+    //find person through the passed id
+    const item=person.find(i => i.id === id);
+    //if item not found return error
+    if (!item) return;
 
-      router.push({pathname: '/(tabs)/viewReciept'});
-    };
+    //update values & prefill input for the modal
+    setEditingId(id);
+    setNewPersonAdd(item.name);
 
-    const goToHome = () => {
-        Alert.alert('All data entered will be lost')
-        router.push({pathname: '/(tabs)'})
-    };
+    //display modal asking what the new values are
+    setModalVisible(true)
+  };
+
+  //submit edit - assign relevent values
+  const submitEdit = () =>{
+    //haptic feedback
+    Haptics.notificationAsync(
+      Haptics.NotificationFeedbackType.Success
+    )
+    //find selected item and update person name to new values
+    const updatedPeople = person.map(item => item.id === editingId ? {
+      ...item,
+      name: newPersonAdd,
+    }: item);
+
+    //set relevevent information & clear for re-run
+    setPerson(updatedPeople)
+    setModalVisible(false);
+    setEditingId(null);
+    setNewPersonAdd('');
+  }
+
+  //add all new information from initial modals - this includes the name, date and first 2 people
+  const addInfo = (newName: string, newDate: string, p1: string, p2: string) => {
+    setTitle(newName);
+    setDate(newDate);
+    setPerson(prev => [
+        ...prev,
+        { id: Math.random().toString(), name: p1 },
+        { id: Math.random().toString(), name: p2 },
+    ]);
+  }
+
+  //to add a new person
+  const newPerson = (newName: string) => {
+      setPerson(prev => [
+          ...prev,
+          { id: Math.random().toString(), name: newName },
+      ]);
+  }
+
+    
+
+  //store data and go to viewReciept.tsx
+  const goToReciept = async () => {
+    //haptic feedback
+    Haptics.notificationAsync(
+      Haptics.NotificationFeedbackType.Success
+    )
+
+    // store data
+      try{
+          await SecureStore.setItemAsync('people', JSON.stringify(person));
+          await SecureStore.setItemAsync('name', JSON.stringify(title)); 
+          await SecureStore.setItemAsync('date', JSON.stringify(date)); 
+          console.log('saved')
+          Haptics.notificationAsync(
+            Haptics.NotificationFeedbackType.Success
+          )
+      }catch (error){
+          console.error('Error saving data: ', error)
+      }
+    //navigate to viewReciept.tsx
+    router.push({pathname: '/viewReciept'});
+  };
+
+  //navigate to the home page
+  const goToHome = () => {
+    //haptic feedback
+    Haptics.notificationAsync(
+      Haptics.NotificationFeedbackType.Success
+    )
+
+    //alert to let the user know that all data is lost
+    Alert.alert('All data entered will be lost')
+    //haptic feedback
+    Haptics.notificationAsync(
+      Haptics.NotificationFeedbackType.Error
+    )
+    //navigate to index.tsx
+    router.push({pathname: '/'})
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.textHeading}>PLEASE ENTER NAME, DATE AND PEOPLE TO SPLIT BETWEEN</Text>
-        <NameDateModal onSubmitObject={(newName, newDate, p1, p2) => addInfo(newName, newDate, p1, p2)}/>
+      {/* alter theme switch */}
+      <Pressable onPress={toggleTheme} style={styles.imageSec}>
+        <Image style={styles.image} source={icon} />
+        <Text style={styles.note}>   Change theme</Text>
+      </Pressable> 
+      <View style={{marginTop:'5%'}}></View>
+        <Text style={styles.textHeading}>PLEASE ENTER NAME, DATE AND PEOPLE TO SPLIT BETWEEN</Text>
+          <NameDateModal onSubmitObject={(newName, newDate, p1, p2) => addInfo(newName, newDate, p1, p2)}/>
 
-        <View style={styles.nameDate}>
-          <Text style={styles.textPrimary}>Name:     {name}</Text>
-          <Text style={styles.textPrimary}>Date:       {date}</Text>
-        </View>
+          <View style={styles.nameDate}>
+            <Text style={styles.textPrimary}>Name:     {title}</Text>
+            <Text style={styles.textPrimary}>Date:       {date}</Text>
+          </View>
 
-        <View style={styles.listOfPeople}>
-             <ScrollView style={{ marginTop: 20 }}>
-                   <View>
-                     {person.map(item => (
-                    <SwipeGesture key={item.id} onRemove={() => handleDelete(item.id)} onOpen={registerOpen}>
-                        <PersonCard name={item.name} />
-                    </SwipeGesture>
-                    ))}
-                </View>
-            </ScrollView>
-        </View>
+          <View style={styles.listOfPeople}>
+            <View style={styles.slideSec}>
+              <Text style={styles.slideNote}>← To edit, swipe right</Text>
+              <View style={styles.gap}></View>
+              <Text style={styles.slideNote}>To delete, swipe left →</Text>
+            </View>
+              <ScrollView style={{ marginTop: 20 }}>
+                    <View>
+                      {person.map(item => (
+                      <SwipeGesture key={item.id} onRemove={() => handleDelete(item.id)} onEdit={() => handleEdit(item.id)} onOpen={registerOpen}>
+                          <PersonCard name={item.name} />
+                      </SwipeGesture>
+                      ))}
+                  </View>
+              </ScrollView>
+          </View>
         <View style={styles.buttonSec}>
+            <View style={{marginBottom: '6%'}}>
             {person.length < 4 && person.length >= 2 && (<NewPersonModal onSubmitObject={(newName) => newPerson(newName)}/>)}
-            <Button theme='submit' label='CONTINUE' onPress={goToReciept}/>
+            </View>
+            <Button buttonTheme='confirm' label='CONTINUE' onPress={goToReciept}/>
             
-            <Button theme="back" label="RETURN TO HOME" onPress={goToHome}/>
+            <Button buttonTheme="back" label="RETURN TO HOME" onPress={goToHome}/>
         </View>
 
+
+      {/* modal for editing - must be in here so it can alter values correctly/easiest  */}
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+            setModalVisible(!modalVisible);
+        }}>
+      <Pressable style={styles.centeredView} onPress={() => setModalVisible(false)}>
+          <Pressable style={styles.modalView} onPress={() => {}}>
+        {/* modal content */}
+            <Text style={styles.textPrimary}>Edit Item</Text>
+            <Text style={styles.textSecondary}>Please enter the following information: </Text>
+            
+            <View style={styles.inputSection}>
+                <View style={styles.row}>
+                  <Text style={styles.textSecondary}>Name: </Text>
+                  <TextInput style={styles.input} 
+                  onChangeText={(newValue) => setNewPersonAdd(newValue)} 
+                  value={newPersonAdd}
+                  placeholder= 'Enter name of person...' /> 
+                </View>
+
+                <View>
+                    <Button buttonTheme='submit' label=' Submit' onPress={submitEdit}/>
+                </View>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: typeof themes.default) => StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#D4E0F3',
+    backgroundColor: theme.secondaryBackground,
     height: '100%',
     width: '100%',
     padding: '5%'
   },
-  listOfCards: {
-    flex: 2,
-    width: '50%',
-    marginTop: '5%',
+  header: {
+    height: '10%',
+    padding: '5%'
+  },
+  listOfPeople: {
+    height: '56%'
+  },
+  buttonSec: {
+    height: '10%',
+    marginBottom: '15%',  
   },
   textPrimary: {
-    color: '#4F4F4F',
+    color: theme.primaryTextColor,
     fontFamily: 'lucida grande',
     fontWeight: 'bold',
     fontSize: 30,
   },
   textSecondary: {
-    color: '#4F4F4F',
+    color: theme.primaryTextColor,
     fontFamily: 'lucida grande',
     fontWeight: 'bold',
     fontSize: 25,
@@ -153,28 +274,87 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     width: 300,
   },
-  header: {
-    height: '30%',
-    padding: '5%'
-  },
-  listOfPeople: {
-    height: '60%',
-  },
-  buttonSec: {
-    height: '10%',
-    marginBottom: '10%',  
-  },
   textHeading: {
-    color: '#4F4F4F',
+    color: theme.primaryTextColor,
     fontFamily: 'lucida grande',
     fontWeight: 'bold',
     fontSize: 35,
     textAlign: 'center',
   },
   nameDate: {
-    backgroundColor: '#FFFDF2',
+    backgroundColor: theme.mainBackground,
     borderRadius: 15,
     padding: '3%',
-    marginTop: '5%',
-  }
+  },
+
+  // for the modal
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: theme.mainBackground,
+    borderColor: theme.borderColour,
+    borderWidth: 5,
+    minHeight: '40%',
+    minWidth: '50%',
+    borderRadius: 15,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  inputSection: {
+    paddingHorizontal: 10,
+    paddingVertical: 20,
+    height: '40%',
+    width: '40%',
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    padding: 10,
+  },
+  slideNote: {
+    color: theme.primaryTextColor,
+    fontFamily: 'lucida grande',
+    fontWeight: 'bold',
+    fontSize: 20,
+    paddingTop: '1%',
+  },
+  slideSec: {
+    flexDirection: 'row',
+  },
+  imageSec: {
+    position: 'absolute',
+    left: 15,
+    top: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  image: {
+    width: 50,
+    height: 50,
+    zIndex: 999,
+  },
+  note: {
+    color: theme.primaryTextColor,
+    fontFamily: 'lucida grande',
+    fontWeight: 'bold',
+    fontSize: 15,
+  },
+  gap: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    paddingTop: '5%',
+  },
 });

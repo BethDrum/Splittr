@@ -1,4 +1,6 @@
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useTheme } from '../themes/themeSwitcher';
+import { themes } from '../themes/themes';
 
 type Props = {
     onPress: () => void;   
@@ -7,6 +9,10 @@ type Props = {
 };
 
 export default function ReceiptCard({ onPress, name, date }: Props) {
+    //for changable themes
+    const { theme, themeName, toggleTheme } = useTheme();
+    const styles = createStyles(theme);
+
     return(
         <View style={styles.cardWrapper}>
             <View>
@@ -27,9 +33,9 @@ export default function ReceiptCard({ onPress, name, date }: Props) {
 }
 
 
-const styles = StyleSheet.create({
+const createStyles = (theme: typeof themes.default) => StyleSheet.create({
     iconBox: {
-        backgroundColor: '#D4E0F3',
+        backgroundColor: theme.secondaryColor,
         width: '20%',
         height: '100%',
         borderRadius: 15,
@@ -40,19 +46,19 @@ const styles = StyleSheet.create({
     cardWrapper: {
         width: '100%',
         height: 120,
-        backgroundColor: '#FFFDF2',
+        backgroundColor: theme.mainBackground,
         borderRadius: 10,
         padding: '5%',
         marginBottom: '2%',
     },
     textPrimary: {
-        color: '#4F4F4F',
+        color: theme.primaryTextColor,
         fontFamily: 'lucida grande',
         fontWeight: 'bold',
         fontSize: 40,
     },
     textSecondary: {
-        color: '#4F4F4F',
+        color: theme.primaryTextColor,
         fontFamily: 'lucida grande',
         fontWeight: 'bold',
         fontSize: 30,

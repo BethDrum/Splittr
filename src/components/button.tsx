@@ -1,42 +1,39 @@
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
+//local import
+import { useTheme } from '../themes/themeSwitcher';
+import { themes } from '../themes/themes';
+
 type Props = {
     label: string;
-    theme?: 'confirm' | 'edit' | 'back' | 'addOption' | 'share' | 'save' | 'submit';
+    buttonTheme?: 'confirm' | 'back' | 'share' | 'save' | 'submit' | 'action' | 'backButton' | 'service';
     onPress?: () => void;
 };
 
-export default function Button({ label, theme, onPress }: Props) {
-    if (theme === 'confirm')
+export default function Button({ label, buttonTheme, onPress }: Props) {
+    //for changable themes
+    const { theme, themeName, toggleTheme } = useTheme();
+    const styles = createStyles(theme);
+
+    //for each button, alter colour and (possibly) change buttonWrapper style and/or add a image for a icon
+    if (buttonTheme === 'confirm')
         return(
         <View
             style={[
                 styles.buttonWrapper,
-                { backgroundColor: '#A8B396'},
+                { backgroundColor: theme.continueButton},
             ]}>
             <Pressable onPress={onPress}>
                 <Text style={styles.buttonLabel}>{label}</Text>
             </Pressable>
         </View>
     )
-    else if (theme === 'edit')
+    else if (buttonTheme === 'back')
         return(
             <View
             style={[
                 styles.buttonWrapper,
-                { backgroundColor: '#EBACAD'},
-            ]}>
-            <Pressable onPress={onPress}>
-                <Text style={styles.buttonLabel}>{label}</Text>
-            </Pressable>
-        </View>
-    )
-    else if (theme === 'back')
-        return(
-            <View
-            style={[
-                styles.buttonWrapper,
-                { backgroundColor: '#C8D3B7'},
+                { backgroundColor: theme.returnButton},
             ]}>
             <Pressable onPress={onPress} style={styles.group}>
                 <Image style={styles.iconR} source={require('../../assets/images/icons/keyboard_return.png')} />
@@ -44,24 +41,12 @@ export default function Button({ label, theme, onPress }: Props) {
             </Pressable>
         </View>
     )
-    else if (theme === 'addOption')
+    else if (buttonTheme === 'share')
         return(
             <View
             style={[
                 styles.buttonWrapper,
-                { backgroundColor: '#EBACAD'},
-            ]}>
-            <Pressable onPress={onPress}>
-                <Text style={styles.buttonLabel}>{label}</Text>
-            </Pressable>
-        </View>
-    )
-    else if (theme === 'share')
-        return(
-            <View
-            style={[
-                styles.buttonWrapper,
-                { backgroundColor: '#C8D3B7'},
+                { backgroundColor: theme.actionButton},
             ]}>
             <Pressable onPress={onPress} style={styles.group}>
                 <Image style={styles.iconS} source={require('../../assets/images/icons/Share.png')} />
@@ -69,12 +54,12 @@ export default function Button({ label, theme, onPress }: Props) {
             </Pressable>
         </View>
     )
-    else if (theme === 'save')
+    else if (buttonTheme === 'save')
         return(
             <View
             style={[
                 styles.buttonWrapper,
-                { backgroundColor: '#C8D3B7'},
+                { backgroundColor: theme.actionButton},
             ]}>
             <Pressable onPress={onPress} style={styles.group}>
                 <Image style={styles.iconS} source={require('../../assets/images/icons/Save.png')} />
@@ -82,12 +67,48 @@ export default function Button({ label, theme, onPress }: Props) {
             </Pressable>
         </View>
     )
-    else if (theme === 'submit')
+    else if (buttonTheme === 'submit')
         return(
             <View
             style={[
                 styles.submit,
-                { backgroundColor: '#EBACAD'},
+                { backgroundColor: theme.actionButton},
+            ]}>
+            <Pressable onPress={onPress} style={styles.group}>
+                <Text style={styles.buttonLabel}>{label}</Text>
+            </Pressable>
+        </View>
+    )
+    else if (buttonTheme === 'action')
+        return(
+            <View
+            style={[
+                styles.buttonWrapper,
+                { backgroundColor: theme.actionButton},
+            ]}>
+            <Pressable onPress={onPress} style={styles.group}>
+                <Text style={styles.buttonLabel}>{label}</Text>
+            </Pressable>
+        </View>
+    )
+    else if (buttonTheme === 'backButton')
+        return(
+            <View
+            style={[
+                styles.back,
+                { backgroundColor: theme.actionButton},
+            ]}>
+            <Pressable onPress={onPress} style={styles.group}>
+                <Text style={styles.buttonLabel}>{label}</Text>
+            </Pressable>
+        </View>
+    )
+    else if (buttonTheme === 'service')
+        return(
+            <View
+            style={[
+                styles.buttonWrapper,
+                { backgroundColor: theme.alternateActionColour},
             ]}>
             <Pressable onPress={onPress} style={styles.group}>
                 <Text style={styles.buttonLabel}>{label}</Text>
@@ -103,7 +124,7 @@ export default function Button({ label, theme, onPress }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: typeof themes.default) => StyleSheet.create({
     buttonWrapper: {
         width: '90%',
         height: 68,
@@ -112,11 +133,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         padding: 3,
-        borderRadius: 10,
+        borderRadius: 40,
         margin: 5,
     },
     buttonLabel: {
-        color: '#FFFFFF',
+        color: theme.secondaryTextColor,
         fontFamily: 'lucida grande',
         fontWeight: 'bold',
         fontSize: 25,
@@ -141,7 +162,20 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         padding: 3,
-        borderRadius: 10,
+        borderRadius: 40,
         margin: 5,
+    },
+    back: {
+        width: '30%',
+        height: 58,
+        marginHorizontal: 20,
+        alignSelf: 'center',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 3,
+        borderRadius: 40,
+        margin: 5,
+        borderColor: theme.actionButtonBorder,
+        borderWidth: 3,
     },
 });

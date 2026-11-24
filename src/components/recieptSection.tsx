@@ -1,11 +1,20 @@
 import { StyleSheet, Text, View } from 'react-native';
 
+//local imports
+import { useTheme } from '../themes/themeSwitcher';
+import { themes } from '../themes/themes';
+
+
 interface iRecieptSection {
     food: string;
     cost: string;
 }
 
 export default function recieptSection({food, cost}: iRecieptSection) {
+    //for changable themes
+    const { theme, themeName, toggleTheme } = useTheme();
+    const styles = createStyles(theme);
+
     return(
         <View style={styles.cardWrapper}>
             <View style = {styles.mainCard}>
@@ -22,13 +31,13 @@ export default function recieptSection({food, cost}: iRecieptSection) {
 }
 
 
-export const styles = StyleSheet.create({
+const createStyles = (theme: typeof themes.default) => StyleSheet.create({
     mainCard: {
         flex: 1,
-        backgroundColor: '#FFFDF2',
+        backgroundColor: theme.mainBackground,
         margin: 5,
         borderRadius: 10,
-        color: '#4F4F4F',
+        color: theme.primaryTextColor,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -39,7 +48,7 @@ export const styles = StyleSheet.create({
         alignSelf: 'flex-start',
     },
     food: {
-        color: '#4F4F4F',
+        color: theme.primaryTextColor,
         fontFamily: 'lucida grande',
         fontWeight: 'bold',
         fontSize: 20,
@@ -47,7 +56,7 @@ export const styles = StyleSheet.create({
         paddingLeft: '5%',
     },
     cost: {
-        color: '#4F4F4F',
+        color: theme.primaryTextColor,
         fontFamily: 'lucida grande',
         fontWeight: 'bold',
         fontSize: 20,
@@ -65,7 +74,7 @@ export const styles = StyleSheet.create({
     singleDot:{
         width: 6,
         height: 2,
-        backgroundColor: '#4F4F4F',
+        backgroundColor: theme.primaryTextColor,
         borderRadius: 1,
     }
 });
