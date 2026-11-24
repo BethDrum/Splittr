@@ -3,6 +3,12 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Swipeable, { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 
+//local imports
+import { useTheme } from '../themes/themeSwitcher';
+import { themes } from '../themes/themes';
+
+
+
 interface SwipeGestureProps {
   children: React.ReactNode;
   onRemove: () => void;
@@ -12,7 +18,11 @@ interface SwipeGestureProps {
 
 //row that swipes
 function DeleteAction({ drag, onPress}: { drag: SharedValue<number>; onPress: () => void; }) {
-    //drag is negative as going left
+  //for changable themes
+  const { theme, themeName, toggleTheme } = useTheme();
+  const styles = createStyles(theme);   
+
+  //drag is negative as going left
     const animatedStyle = useAnimatedStyle(() => ({
       transform: [{ translateX: drag.value + 80 }],
     }));
@@ -27,6 +37,10 @@ function DeleteAction({ drag, onPress}: { drag: SharedValue<number>; onPress: ()
   }
 
   function EditAction({drag, onPress} : {drag: SharedValue<number>; onPress: () => void; }){
+    //for changable themes
+  const { theme, themeName, toggleTheme } = useTheme();
+  const styles = createStyles(theme);   
+
     //make drag positive as card is going right
     const animatedStyle = useAnimatedStyle(() => ({
       transform: [{translateX: drag.value - 80}]
@@ -42,6 +56,10 @@ function DeleteAction({ drag, onPress}: { drag: SharedValue<number>; onPress: ()
   }
 
   export default function SwipeGesture({ children, onRemove, onEdit, onOpen }: SwipeGestureProps) {
+    //for changable themes
+    const { theme, themeName, toggleTheme } = useTheme();
+    const styles = createStyles(theme);   
+
     const rowRef = useRef<SwipeableMethods | null>(null);
 
     return (
@@ -72,13 +90,13 @@ function DeleteAction({ drag, onPress}: { drag: SharedValue<number>; onPress: ()
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: typeof themes.default) => StyleSheet.create({
   actionWrap: {
     width: 80,
   },
   action: {
     flex: 1,
-    backgroundColor: '#e16565',
+    backgroundColor: theme.actionButton,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,
@@ -88,6 +106,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   swipeCard: {
-    backgroundColor: '#D4E0F3'
+    backgroundColor: theme.secondaryBackground
   }
 });

@@ -79,7 +79,7 @@ export default function Index() {
 
       <View style={{marginTop: '7%'}}></View>
       <View style={styles.imageContainer} collapsable={false}>
-        <Card theme="primary" onPress={goToSetUp}/>
+        <Card onPress={goToSetUp}/>
       </View>
 
       <View style={styles.dottedLine}>
@@ -96,7 +96,7 @@ export default function Index() {
         </View>
       </ScrollView>
       <View style={{margin: '5%'}}>
-          <Button theme='confirm' label='ADD NEW RECEIPT +' onPress={goToSetUp}/>
+          <Button buttonTheme='confirm' label='ADD NEW RECEIPT +' onPress={goToSetUp}/>
       </View>
     </View>
   );
@@ -131,7 +131,7 @@ const createStyles = (theme: typeof themes.default) => StyleSheet.create({
   singleDot:{
     width: 6,
     height: 2,
-    backgroundColor: theme.primaryTextColor,
+    backgroundColor: theme.secondaryTextColor,
     borderRadius: 1,
   },
   scroll: {

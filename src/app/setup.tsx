@@ -169,40 +169,38 @@ export default function Setup() {
         <Image style={styles.image} source={icon} />
         <Text style={styles.note}>   Change theme</Text>
       </Pressable> 
+      <View style={{marginTop:'5%'}}></View>
+        <Text style={styles.textHeading}>PLEASE ENTER NAME, DATE AND PEOPLE TO SPLIT BETWEEN</Text>
+          <NameDateModal onSubmitObject={(newName, newDate, p1, p2) => addInfo(newName, newDate, p1, p2)}/>
 
-      <View style={{marginTop: '5%'}}></View>
-
-      <Text style={styles.textHeading}>PLEASE ENTER NAME, DATE AND PEOPLE TO SPLIT BETWEEN</Text>
-        <NameDateModal onSubmitObject={(newName, newDate, p1, p2) => addInfo(newName, newDate, p1, p2)}/>
-
-        <View style={styles.nameDate}>
-          <Text style={styles.textPrimary}>Name:     {title}</Text>
-          <Text style={styles.textPrimary}>Date:       {date}</Text>
-        </View>
-
-        <View style={styles.listOfPeople}>
-          <View style={styles.slideSec}>
-            <Text style={styles.slideNote}>← To edit, swipe right</Text>
-            <View style={styles.gap}></View>
-             <Text style={styles.slideNote}>To delete, swipe left →</Text>
+          <View style={styles.nameDate}>
+            <Text style={styles.textPrimary}>Name:     {title}</Text>
+            <Text style={styles.textPrimary}>Date:       {date}</Text>
           </View>
-             <ScrollView style={{ marginTop: 20 }}>
-                   <View>
-                     {person.map(item => (
-                    <SwipeGesture key={item.id} onRemove={() => handleDelete(item.id)} onEdit={() => handleEdit(item.id)} onOpen={registerOpen}>
-                        <PersonCard name={item.name} />
-                    </SwipeGesture>
-                    ))}
-                </View>
-            </ScrollView>
-        </View>
+
+          <View style={styles.listOfPeople}>
+            <View style={styles.slideSec}>
+              <Text style={styles.slideNote}>← To edit, swipe right</Text>
+              <View style={styles.gap}></View>
+              <Text style={styles.slideNote}>To delete, swipe left →</Text>
+            </View>
+              <ScrollView style={{ marginTop: 20 }}>
+                    <View>
+                      {person.map(item => (
+                      <SwipeGesture key={item.id} onRemove={() => handleDelete(item.id)} onEdit={() => handleEdit(item.id)} onOpen={registerOpen}>
+                          <PersonCard name={item.name} />
+                      </SwipeGesture>
+                      ))}
+                  </View>
+              </ScrollView>
+          </View>
         <View style={styles.buttonSec}>
             <View style={{marginBottom: '6%'}}>
             {person.length < 4 && person.length >= 2 && (<NewPersonModal onSubmitObject={(newName) => newPerson(newName)}/>)}
             </View>
-            <Button theme='next' label='CONTINUE' onPress={goToReciept}/>
+            <Button buttonTheme='confirm' label='CONTINUE' onPress={goToReciept}/>
             
-            <Button theme="back" label="RETURN TO HOME" onPress={goToHome}/>
+            <Button buttonTheme="back" label="RETURN TO HOME" onPress={goToHome}/>
         </View>
 
 
@@ -231,7 +229,7 @@ export default function Setup() {
                 </View>
 
                 <View>
-                    <Button theme='submit' label=' Submit' onPress={submitEdit}/>
+                    <Button buttonTheme='submit' label=' Submit' onPress={submitEdit}/>
                 </View>
             </View>
           </Pressable>
@@ -249,11 +247,11 @@ const createStyles = (theme: typeof themes.default) => StyleSheet.create({
     padding: '5%'
   },
   header: {
-    height: '30%',
+    height: '10%',
     padding: '5%'
   },
   listOfPeople: {
-    height: '55%',
+    height: '56%'
   },
   buttonSec: {
     height: '10%',
@@ -288,7 +286,6 @@ const createStyles = (theme: typeof themes.default) => StyleSheet.create({
     backgroundColor: theme.mainBackground,
     borderRadius: 15,
     padding: '3%',
-    marginTop: '5%',
   },
 
   // for the modal

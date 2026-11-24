@@ -270,7 +270,7 @@ export default function viewReciept() {
       <View style={{marginTop: '5%'}}></View>
       <Text style={styles.textPrimary}>PLEASE CONFIRM SELECTION</Text>
 
-      <Button theme='action' label={imageReceived ? 'ADD DIFFERENT IMAGE' : 'ADD IMAGE'} onPress={getReceiptImage}/>
+      <Button buttonTheme='action' label={imageReceived ? 'ADD DIFFERENT IMAGE' : 'ADD IMAGE'} onPress={getReceiptImage}/>
       <ScrollView style={{ marginTop: 20 }}>
           <View style={[styles.recieptOutput]}>
             {recieptItems.map((item, index) => (
@@ -282,9 +282,9 @@ export default function viewReciept() {
       </ScrollView>
 
       <View style={styles.buttonSec}>
-        <Button theme="confirm" label="CONFIRM" onPress={goToSplitScreen}/>
+        <Button buttonTheme="confirm" label="CONFIRM" onPress={goToSplitScreen}/>
         <ModalReciept onSubmitObject={(newName, newCost) => addNew(newName, newCost)}/>
-        <Button theme="back" label="RETURN TO HOME" onPress={goToHome}/>
+        <Button buttonTheme="back" label="RETURN TO HOME" onPress={goToHome}/>
       </View>
       <View style={styles.end}>
         
@@ -321,7 +321,7 @@ export default function viewReciept() {
                   keyboardType='numeric'/> 
                 </View>
                 <View>
-                    <Button theme='submit' label=' Submit' onPress={submitEdit}/>
+                    <Button buttonTheme='submit' label=' Submit' onPress={submitEdit}/>
                 </View>
             </View>
           </Pressable>

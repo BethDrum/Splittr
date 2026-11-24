@@ -1,5 +1,9 @@
 import { StyleSheet, Text, View } from 'react-native';
 
+//local imports
+import { useTheme } from '../themes/themeSwitcher';
+import { themes } from '../themes/themes';
+
 
 interface GuestSection {
     name: string;
@@ -7,6 +11,10 @@ interface GuestSection {
 }
 
 export default function PersonCard({name}: GuestSection) {
+    //for changable themes
+    const { theme, themeName, toggleTheme } = useTheme();
+    const styles = createStyles(theme);
+
     
     return(
         <View style={styles.cardWrapper}>
@@ -18,16 +26,16 @@ export default function PersonCard({name}: GuestSection) {
 }
 
 
-export const styles = StyleSheet.create({
+const createStyles = (theme: typeof themes.default) => StyleSheet.create({
     cardWrapper: {
         alignSelf: 'center',
-        backgroundColor: '#FFFDF2',
+        backgroundColor: theme.mainBackground,
         borderRadius: 15,
         margin: '1%',
         width: '100%',
     },
     name: {
-        color: '#4F4F4F',
+        color: theme.primaryTextColor,
         fontFamily: 'lucida grande',
         fontWeight: 'bold',
         fontSize: 25,

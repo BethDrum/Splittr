@@ -2,18 +2,28 @@ import { useState } from 'react';
 import { Alert, Modal, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
+//local imports
+import { useTheme } from '../themes/themeSwitcher';
+import { themes } from '../themes/themes';
 import Button from './button';
 
+
 type Props = {
-    theme?: 'service' | 'discount';
+    modalTheme?: 'service' | 'discount';
     onSubmit: (value: number) => void;
 };
 
-export default function modal({theme, onSubmit}: Props){
+export default function modal({modalTheme, onSubmit}: Props){
+  //initialise relavent variables
   const [modalVisible, setModalVisible] = useState(false);
   const [number, onChangeNumber] = useState('');
   const [text, onChangeText] = useState("");
   const [cost, onChangeCost] = useState('');
+  //changable theme
+  const { theme, themeName, toggleTheme } = useTheme();
+  const styles = createStyles(theme);
+
+
 
   //clean up cost & add £ symbol
   const cleanCost = (text: string) => {
@@ -21,7 +31,7 @@ export default function modal({theme, onSubmit}: Props){
     onChangeCost(`£${clean}`);
   };
 
-  //set value to return and make the modal invisible
+  //set value to return and make the modal invisible, ready for use again
   const submit = () => {
     cleanCost(cost)
     if (!number.trim()) {
@@ -33,7 +43,8 @@ export default function modal({theme, onSubmit}: Props){
 
   };
 
-  if (theme === 'service'){
+  //create modals with input for cost - used in adding service charge
+  if (modalTheme === 'service'){
     return(
       <SafeAreaProvider>
       <SafeAreaView style={styles.centeredView}>
@@ -63,54 +74,13 @@ export default function modal({theme, onSubmit}: Props){
                   keyboardType='numeric'/>
               </View>
 
-              <Button theme='addOption' label=' Submit' onPress={submit}/>
+              <Button buttonTheme='submit' label=' Submit' onPress={submit}/>
 
             </View>
           </View>
         </Modal>
 
-        <Button theme='addOption' label='ADD SERVICE CHARGE' onPress={() => setModalVisible(true)}/>
-        </SafeAreaView>
-      </SafeAreaProvider>
-    );
-  }
-  if (theme === 'discount'){
-    return(
-      <SafeAreaProvider>
-      <SafeAreaView style={styles.centeredView}>
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => {
-            Alert.alert('Modal has been closed.');
-            setModalVisible(!modalVisible);
-          }}>
-          
-          {/* modal content */}
-          <View style={styles.centeredView}>
-            <View style={styles.modalView}>
-
-
-              <Text style={styles.textPrimary}>Add Discount</Text>
-              <Text style={styles.textSecondary}>Please enter the total discount percentage: </Text>
-              
-              <View style={styles.inputSection}>
-                <TextInput style={styles.input} 
-                  onChangeText={onChangeNumber} 
-                  value={number}
-                  placeholder= '0'
-                  keyboardType='numeric'/> 
-                  <Text style={styles.textPrimary}>£</Text>
-              </View>
-
-              <Button theme='addOption' label=' Submit' onPress={submit}/>
-
-            </View>
-          </View>
-        </Modal>
-
-        <Button theme='addOption' label='Add Service Charge' onPress={() => setModalVisible(true)}/>
+        <Button buttonTheme='service' label='ADD SERVICE CHARGE' onPress={() => setModalVisible(true)}/>
         </SafeAreaView>
       </SafeAreaProvider>
     );
@@ -137,20 +107,20 @@ export default function modal({theme, onSubmit}: Props){
               <Text style={styles.textPrimary}>Empty Modal</Text>
 
               
-              <Button theme='addOption' label='Submit' onPress={() => setModalVisible(false)}/>
+              <Button buttonTheme='submit' label='Submit' onPress={() => setModalVisible(false)}/>
 
             </View>
           </View>
         </Modal>
 
-        <Button theme='addOption' label='Activate Modal' onPress={() => setModalVisible(true)}/>
+        <Button buttonTheme='action' label='Activate Modal' onPress={() => setModalVisible(true)}/>
         </SafeAreaView>
       </SafeAreaProvider>
   );
 };
 
 
-const styles = StyleSheet.create({
+const createStyles = (theme: typeof themes.default) => StyleSheet.create({
   centeredView: {
     flex: 1,
     justifyContent: 'center',
@@ -158,8 +128,8 @@ const styles = StyleSheet.create({
   },
   modalView: {
     margin: 20,
-    backgroundColor: '#FFFDF2',
-    borderColor: '#E3E1D5',
+    backgroundColor: theme.mainBackground,
+    borderColor: theme.borderColour,
     borderWidth: 5,
     minHeight: '30%',
     minWidth: '50%',
@@ -176,13 +146,13 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   textPrimary: {
-    color: '#4F4F4F',
+    color: theme.primaryTextColor,
     fontFamily: 'lucida grande',
     fontWeight: 'bold',
     fontSize: 30,
   },
   textSecondary: {
-    color: '#4F4F4F',
+    color: theme.primaryTextColor,
     fontFamily: 'lucida grande',
     fontWeight: 'bold',
     fontSize: 25,

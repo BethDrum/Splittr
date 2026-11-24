@@ -255,17 +255,17 @@ export default function shareReciept(){
             
             <View style={styles.buttonSection}>
             {/* option to add service charge or a discount to all */}
-            <Modal theme='service' onSubmit={(value) => setServiceCharge(value)}/>
+            <Modal modalTheme='service' onSubmit={(value) => setServiceCharge(value)}/>
             {/* <Modal theme='discount' onSubmit={(value) => setDiscount(value)}/> */}
             
             {/* option to share */}
-            <Button theme='share' label='SHARE' onPress={onShare} />
+            <Button buttonTheme='share' label='SHARE' onPress={onShare} />
             
             {/* option to save OR delete */}
-            <Button theme='save' label={save ? 'DELETE SAVE' : 'SAVE'} onPress={save ? deleteData : saveData} />
+            <Button buttonTheme='save' label={save ? 'DELETE SAVE' : 'SAVE'} onPress={save ? deleteData : saveData} />
             
 
-            <Button theme='back' label='RETURN TO HOME' onPress={goToHome} />
+            <Button buttonTheme='back' label='RETURN TO HOME' onPress={goToHome} />
             </View>
         </View>
     );

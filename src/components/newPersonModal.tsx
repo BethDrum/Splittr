@@ -3,6 +3,9 @@ import { useState } from 'react';
 import { Alert, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
+//local imports
+import { useTheme } from '../themes/themeSwitcher';
+import { themes } from '../themes/themes';
 import Button from './button';
 
 type Props = {
@@ -12,7 +15,10 @@ type Props = {
 export default function NewPersonModal({onSubmitObject,}: Props){
   const [modalVisible, setModalVisible] = useState(false);
   const [text, onChangeText] = useState("");
-//   const [colour, setColour] = useState('#f1c0b8');
+  //for changable themes
+  const { theme, themeName, toggleTheme } = useTheme();
+  const styles = createStyles(theme);
+
 
 
   const submitText = () => {
@@ -59,31 +65,21 @@ export default function NewPersonModal({onSubmitObject,}: Props){
                 value={text}
                 placeholder= 'Enter name of the person...' /> 
                 </View>
-
-                {/* <Host style={{ flex: 1 }}>
-                    <ColorPicker
-                        label="Select a color for this person"
-                        selection={colour}
-                        onSelectionChange={setColour}
-                    />
-                </Host> */}
-                
-
                 <View>
-                    <Button theme='submit' label='SUBMIT' onPress={submitText}/>
+                    <Button buttonTheme='submit' label='SUBMIT' onPress={submitText}/>
                 </View>
             </View>
             </Pressable>
         </Pressable>
         </Modal>
 
-        <Button theme='action' label='Add person' onPress={() => setModalVisible(true)}/>
+        <Button buttonTheme='action' label='Add person' onPress={() => setModalVisible(true)}/>
         </SafeAreaView>
     </SafeAreaProvider>
     );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: typeof themes.default) => StyleSheet.create({
   centeredView: {
     flex: 1,
     justifyContent: 'center',
@@ -91,8 +87,8 @@ const styles = StyleSheet.create({
   },
   modalView: {
     margin: 20,
-    backgroundColor: '#FFFDF2',
-    borderColor: '#E3E1D5',
+    backgroundColor: theme.mainBackground,
+    borderColor: theme.borderColour,
     borderWidth: 5,
     minHeight: '30%',
     minWidth: '50%',
@@ -109,13 +105,13 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   textPrimary: {
-    color: '#4F4F4F',
+    color: theme.primaryTextColor,
     fontFamily: 'lucida grande',
     fontWeight: 'bold',
     fontSize: 30,
   },
   textSecondary: {
-    color: '#4F4F4F',
+    color: theme.primaryTextColor,
     fontFamily: 'lucida grande',
     fontWeight: 'bold',
     fontSize: 25,

@@ -227,7 +227,7 @@ export default function App() {
       </Pressable>
       <Text style={styles.primaryText}>Drag the item to the person to assign it too</Text>
       <View style={styles.backButton}>
-        <Button theme='action' label='go back' onPress={goBack} />
+        <Button buttonTheme='backButton' label='go back' onPress={goBack} />
       </View>
       <DropProvider>
         <View style={{flex: 1}}>

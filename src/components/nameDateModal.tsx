@@ -1,19 +1,25 @@
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useState } from 'react';
 import { Alert, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
-import DateTimePicker from '@react-native-community/datetimepicker';
-
+//local imports
+import { useTheme } from '../themes/themeSwitcher';
+import { themes } from '../themes/themes';
 import Button from './button';
 
 
-//TODO: update date to save as date value, add optional image
-
 type Props = {
-    onSubmitObject: (name: string, date: string, p1name: string, p2name: string) => void;
+    onSubmitObject: (
+        name: string, 
+        date: string, 
+        p1name: string, 
+        p2name: string
+    ) => void;
 };
 
 export default function NameDateModal({onSubmitObject}: Props){
+    //set relevant variables
   const [modalVisible, setModalVisible] = useState(true);
   const [modalTwoVisible, setModalTwoVisible] = useState(false);
   //general info
@@ -23,11 +29,14 @@ export default function NameDateModal({onSubmitObject}: Props){
   const [showDate, setShowDate] = useState(false);
   const [dateSelected, setDateSelected] = useState(false);
 
-  //person 1 and person 2, name and colour info
+  //person 1 and person 2, name  info
   const [p1name, onSetP1Name] = useState("");
-  const [p1colour, onSetP1Colour] = useState("");
   const [p2name, onSetP2Name] = useState("");
-  const [p2colour, onSetP2Colour] = useState("");
+
+  //for changable themes
+  const { theme, themeName, toggleTheme } = useTheme();
+  const styles = createStyles(theme);
+
 
   //first page, ask for name and date
   //next button to set up person 1 then person 2
@@ -102,7 +111,7 @@ export default function NameDateModal({onSubmitObject}: Props){
                 )}
                 </View>
                 <View>
-                    <Button theme='submit' label='NEXT STEP ->' onPress={next}/>
+                    <Button buttonTheme='submit' label='NEXT STEP ->' onPress={next}/>
                 </View>
             </View>
             </View>
@@ -148,7 +157,7 @@ export default function NameDateModal({onSubmitObject}: Props){
                     </View>
                     
                     <View>
-                        <Button theme='submit' label='SUBMIT' onPress={submit}/>
+                        <Button buttonTheme='submit' label='SUBMIT' onPress={submit}/>
                     </View>
                 </View>
                 </View>
@@ -159,7 +168,7 @@ export default function NameDateModal({onSubmitObject}: Props){
     );
 }
 
-    const styles = StyleSheet.create({
+const createStyles = (theme: typeof themes.default) => StyleSheet.create({
   centeredView: {
     flex: 1,
     justifyContent: 'center',
@@ -167,8 +176,8 @@ export default function NameDateModal({onSubmitObject}: Props){
   },
   modalView: {
     margin: 20,
-    backgroundColor: '#FFFDF2',
-    borderColor: '#E3E1D5',
+    backgroundColor: theme.mainBackground,
+    borderColor: theme.borderColour,
     borderWidth: 5,
     minHeight: '30%',
     minWidth: '50%',
@@ -185,13 +194,13 @@ export default function NameDateModal({onSubmitObject}: Props){
     elevation: 5,
   },
   textPrimary: {
-    color: '#4F4F4F',
+    color: theme.primaryTextColor,
     fontFamily: 'lucida grande',
     fontWeight: 'bold',
     fontSize: 30,
   },
   textSecondary: {
-    color: '#4F4F4F',
+    color: theme.primaryTextColor,
     fontFamily: 'lucida grande',
     fontWeight: 'bold',
     fontSize: 25,
@@ -228,7 +237,7 @@ export default function NameDateModal({onSubmitObject}: Props){
     justifyContent: 'center'
   },
   textInput: {
-    color: '#9D9D9D',
+    color: theme.noteText,
     fontSize: 13,
   }
 });
