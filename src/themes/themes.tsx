@@ -17,10 +17,11 @@ export const themes= {
         default2: '#C8D3B7',
         default3: '#EBBCDD',
         default4: '#EBE3B1',
+        actionButtonBorder: '#d78082',
     },
     highContrast: {
         mainBackground: '#FFFFFF',
-        secondaryBackground: '#FFFFFF',
+        secondaryBackground: '#e0e0e0',
         continueButton: '#003B49',
         actionButton: '#DC582A',
         returnButton: '#007A78',
@@ -28,13 +29,13 @@ export const themes= {
         primaryTextColor: '#000000',
         secondaryTextColor: '#FFFFFF',
         alternateActionColour: '#D3273E',
-        //edit following
-        borderColour: '#E3E1D5',
-        noteText: '#E3DCB6',
+        borderColour: '#000000',
+        noteText: '#000000',
         dropColour: '#58a6ff',
-        default1: 'red',
-        default2: '#C8D3B7',
-        default3: '#EBBCDD',
-        default4: '#EBE3B1',
+        default1: '#eb0edd',
+        default2: '#f2c319',
+        default3: '#1be604',
+        default4: '#ef0808',
+        actionButtonBorder: '#aa3e17',
     }
 }

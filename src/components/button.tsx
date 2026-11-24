@@ -175,5 +175,7 @@ const createStyles = (theme: typeof themes.default) => StyleSheet.create({
         padding: 3,
         borderRadius: 40,
         margin: 5,
+        borderColor: theme.actionButtonBorder,
+        borderWidth: 3,
     },
 });

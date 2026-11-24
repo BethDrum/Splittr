@@ -348,7 +348,7 @@ const createStyles = (theme: typeof themes.default) => StyleSheet.create({
     justifyContent: 'center',
     left: 0,
     right: 0,
-    top: '60%',
+    top: '57%',
     alignItems: 'center',
     zIndex: 9998,
   },
