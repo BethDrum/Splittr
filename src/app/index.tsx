@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -56,11 +57,21 @@ export default function Index() {
   
   //move to shareReciept.tsx with id to display selected item
   const display = (id: string) => {
+    //haptic feedback
+    Haptics.notificationAsync(
+      Haptics.NotificationFeedbackType.Success
+    )
+
     router.push({pathname: '/shareReciept', params: {mode: 'saved', receiptId: id}})
   }
 
   //move to setUp.tsx page
   const goToSetUp = () => {
+    //haptic feedback
+    Haptics.notificationAsync(
+      Haptics.NotificationFeedbackType.Success
+    )
+
     router.push({pathname: '/setup'});
   }
 

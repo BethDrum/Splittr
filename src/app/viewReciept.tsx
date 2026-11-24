@@ -89,6 +89,11 @@ export default function viewReciept() {
 
   //get in image to scan
   const getReceiptImage = () => {
+    //haptic feedback
+    Haptics.notificationAsync(
+        Haptics.NotificationFeedbackType.Success
+    )
+
     Alert.alert(
       'Select a image of a reciept, choose from the following options',
       'Crop it to ONLY the size of the information (items with cost next to)',
@@ -169,6 +174,11 @@ export default function viewReciept() {
   const handleDelete = (id: string) => {
     //haptic feedback
     Haptics.notificationAsync(
+        Haptics.NotificationFeedbackType.Success
+    )
+
+    //haptic feedback
+    Haptics.notificationAsync(
       Haptics.NotificationFeedbackType.Success
     )
 
@@ -179,6 +189,11 @@ export default function viewReciept() {
 
   //edit function
   const handleEdit = (id: string) => {
+    //haptic feedback
+    Haptics.notificationAsync(
+        Haptics.NotificationFeedbackType.Success
+    )
+    
     //haptic feedback
     Haptics.notificationAsync(
       Haptics.NotificationFeedbackType.Success
@@ -271,6 +286,11 @@ export default function viewReciept() {
       <Text style={styles.textPrimary}>PLEASE CONFIRM SELECTION</Text>
 
       <Button buttonTheme='action' label={imageReceived ? 'ADD DIFFERENT IMAGE' : 'ADD IMAGE'} onPress={getReceiptImage}/>
+      <View style={styles.slideSec}>
+          <Text style={styles.slideNote}>← To edit, swipe right</Text>
+          <View style={styles.gap}></View>
+          <Text style={styles.slideNote}>To delete, swipe left →</Text>
+      </View>
       <ScrollView style={{ marginTop: 20 }}>
           <View style={[styles.recieptOutput]}>
             {recieptItems.map((item, index) => (
@@ -425,6 +445,23 @@ const createStyles = (theme: typeof themes.default) => StyleSheet.create({
     fontFamily: 'lucida grande',
     fontWeight: 'bold',
     fontSize: 15,
-  }
+  },
+  gap: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    paddingTop: '5%',
+  },
+  slideNote: {
+    color: theme.primaryTextColor,
+    fontFamily: 'lucida grande',
+    fontWeight: 'bold',
+    fontSize: 20,
+    paddingTop: '1%',
+    paddingHorizontal: '5%',
+  },
+  slideSec: {
+    flexDirection: 'row',
+  },
 
 });

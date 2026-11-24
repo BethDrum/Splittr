@@ -1,4 +1,5 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
+import * as Haptics from 'expo-haptics';
 import { useState } from 'react';
 import { Alert, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
@@ -43,6 +44,11 @@ export default function NameDateModal({onSubmitObject}: Props){
   //option seperatly to add 1 person
 
   const submit = () => {
+    //haptic feedback
+    Haptics.notificationAsync(
+        Haptics.NotificationFeedbackType.Success
+    )
+    
     if (!p1name.trim() || !p2name.trim()) {
         Alert.alert('Please enter information in all fields.');
         return;
@@ -57,6 +63,11 @@ export default function NameDateModal({onSubmitObject}: Props){
   };
 
   const next = () => {
+    //haptic feedback
+    Haptics.notificationAsync(
+        Haptics.NotificationFeedbackType.Success
+    )
+
     //check data is present
     if (!name.trim()) {
         Alert.alert('Please enter information in all fields.');

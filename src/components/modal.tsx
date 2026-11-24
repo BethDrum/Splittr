@@ -1,5 +1,6 @@
+import * as Haptics from 'expo-haptics';
 import { useState } from 'react';
-import { Alert, Modal, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 //local imports
@@ -16,8 +17,6 @@ type Props = {
 export default function modal({modalTheme, onSubmit}: Props){
   //initialise relavent variables
   const [modalVisible, setModalVisible] = useState(false);
-  const [number, onChangeNumber] = useState('');
-  const [text, onChangeText] = useState("");
   const [cost, onChangeCost] = useState('');
   //changable theme
   const { theme, themeName, toggleTheme } = useTheme();
@@ -33,14 +32,17 @@ export default function modal({modalTheme, onSubmit}: Props){
 
   //set value to return and make the modal invisible, ready for use again
   const submit = () => {
-    cleanCost(cost)
-    if (!number.trim()) {
+    //haptic feedback
+    Haptics.notificationAsync(
+      Haptics.NotificationFeedbackType.Success
+    )
+    if (!cost.trim()) {
         Alert.alert('Please enter information in all fields.');
         return;
     }
-    onSubmit(parseFloat(number) || 0);
+    onSubmit(parseFloat(cost.replace('£', '')) || 0);
     setModalVisible(false);
-
+    onChangeCost('');
   };
 
   //create modals with input for cost - used in adding service charge
@@ -48,42 +50,52 @@ export default function modal({modalTheme, onSubmit}: Props){
     return(
       <SafeAreaProvider>
       <SafeAreaView style={styles.centeredView}>
-        <Modal
+          <Modal
           animationType="slide"
           transparent={true}
           visible={modalVisible}
           onRequestClose={() => {
-            Alert.alert('Modal has been closed.');
-            setModalVisible(!modalVisible);
+              setModalVisible(!modalVisible);
           }}>
           
+          {/* to ensure the modal closed when pressed outside of it */}
+          <Pressable
+              style={styles.centeredView}
+              onPress={() => setModalVisible(false)}
+          >
+  
+          <Pressable
+              style={styles.modalView}
+              onPress={() => {}}
+          >
+          
           {/* modal content */}
-          <View style={styles.centeredView}>
-            <View style={styles.modalView}>
-
-
+  
+  
               <Text style={styles.textPrimary}>Service Charge</Text>
-              <Text style={styles.textSecondary}>Please enter the total service charge to split: </Text>
+              <Text style={styles.textSecondary}>Please enter the total service charge: </Text>
               
               <View style={styles.inputSection}>
-                <Text style={styles.textPrimary}>£</Text>
-                <TextInput style={styles.input} 
-                  onChangeText={cleanCost} 
-                  value={number}
-                  placeholder= '0.00'
-                  keyboardType='numeric'/>
+                <View style={styles.wrapper}>
+                  <Text style={styles.textPrimary}>Cost: £ </Text>
+                  <TextInput style={styles.input} 
+                  value={cost}
+                  onChangeText={onChangeCost} 
+                  placeholder='0.00'
+                  keyboardType='numeric'/> 
+                </View>
+                <View>
+                  <Button buttonTheme='submit' label=' Submit' onPress={submit}/>
+                </View>
               </View>
-
-              <Button buttonTheme='submit' label=' Submit' onPress={submit}/>
-
-            </View>
-          </View>
-        </Modal>
-
-        <Button buttonTheme='service' label='ADD SERVICE CHARGE' onPress={() => setModalVisible(true)}/>
-        </SafeAreaView>
+              </Pressable>
+          </Pressable>
+          </Modal>
+  
+          <Button buttonTheme='service' label='ADD SERVICE CHARGE' onPress={() => setModalVisible(true)}/>
+          </SafeAreaView>
       </SafeAreaProvider>
-    );
+      );
   }
 
 
@@ -161,15 +173,17 @@ const createStyles = (theme: typeof themes.default) => StyleSheet.create({
     borderWidth: 1,
     borderColor: '#000',
     backgroundColor: '#fff',
-    width: '100%',
+    width: 300,
   },
   inputSection: {
     paddingHorizontal: 10,
-    margin: '5%',
+    paddingVertical: 20,
+    height: '35%',
+    width: '40%',
+    justifyContent: 'space-evenly',
+  },
+  wrapper: {
     flexDirection: 'row',
-    width: 100,
-    height: 40,
-    marginLeft: '-1%',
   }
 
 });

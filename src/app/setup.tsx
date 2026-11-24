@@ -47,7 +47,7 @@ export default function Setup() {
   const handleDelete = (id: string) => {
     //haptic feedback
     Haptics.notificationAsync(
-      Haptics.NotificationFeedbackType.Success
+      Haptics.NotificationFeedbackType.Error
     )
     //ensure that there are at least 2 people (person limit is 2-4)
     if (person.length <= 2){
@@ -83,6 +83,10 @@ export default function Setup() {
 
   //submit edit - assign relevent values
   const submitEdit = () =>{
+    //haptic feedback
+    Haptics.notificationAsync(
+      Haptics.NotificationFeedbackType.Success
+    )
     //find selected item and update person name to new values
     const updatedPeople = person.map(item => item.id === editingId ? {
       ...item,
@@ -94,11 +98,6 @@ export default function Setup() {
     setModalVisible(false);
     setEditingId(null);
     setNewPersonAdd('');
-
-    //haptic feedback
-    Haptics.notificationAsync(
-      Haptics.NotificationFeedbackType.Success
-    )
   }
 
   //add all new information from initial modals - this includes the name, date and first 2 people

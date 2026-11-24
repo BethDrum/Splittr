@@ -1,3 +1,4 @@
+import * as Haptics from 'expo-haptics';
 import { useState } from 'react';
 import { Alert, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
@@ -23,6 +24,11 @@ export default function ModalReciept({onSubmitObject}: Props){
 
     //submit function to send data back & clear fields for next open
   const submitText = () => {
+    //haptic feedback
+    Haptics.notificationAsync(
+    Haptics.NotificationFeedbackType.Success
+    )
+
     if (!text.trim() || !cost.trim()) {
         Alert.alert('Please enter information in all fields.');
         return;

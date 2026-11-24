@@ -127,6 +127,11 @@ export default function App() {
 
   //back button
   const goBack = () => {
+    //haptic feedback
+    Haptics.notificationAsync(
+        Haptics.NotificationFeedbackType.Success
+    )
+    
     //get last card
     const lastCard = dropHistory.current.pop()
 

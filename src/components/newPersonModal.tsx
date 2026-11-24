@@ -1,4 +1,5 @@
 // import { ColorPicker, Host } from '@expo/ui/swift-ui';
+import * as Haptics from 'expo-haptics';
 import { useState } from 'react';
 import { Alert, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
@@ -22,6 +23,10 @@ export default function NewPersonModal({onSubmitObject,}: Props){
 
 
   const submitText = () => {
+    //haptic feedback
+    Haptics.notificationAsync(
+        Haptics.NotificationFeedbackType.Success
+    )
     if (!text.trim()) {
         Alert.alert('Please enter information in all fields.');
         return;

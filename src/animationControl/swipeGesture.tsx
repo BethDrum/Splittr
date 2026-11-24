@@ -48,7 +48,7 @@ function DeleteAction({ drag, onPress}: { drag: SharedValue<number>; onPress: ()
 
     return (
       <Reanimated.View style={[styles.actionWrap, animatedStyle]}>
-        <Pressable style={styles.action} onPress={onPress}>
+        <Pressable style={styles.actionEdit} onPress={onPress}>
         <Text style={styles.actionText}>Edit</Text>
         </Pressable>
       </Reanimated.View>
@@ -101,9 +101,18 @@ const createStyles = (theme: typeof themes.default) => StyleSheet.create({
     alignItems: 'center',
     borderRadius: 10,
   },
+  actionEdit: {
+    flex: 1,
+    backgroundColor: theme.alternateActionColour,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10,
+  },
   actionText: {
-    color: '#fff',
-    fontWeight: '600',
+    color: theme.secondaryTextColor,
+    fontFamily: 'lucida grande',
+    fontWeight: 'bold',
+    fontSize: 25,
   },
   swipeCard: {
     backgroundColor: theme.secondaryBackground

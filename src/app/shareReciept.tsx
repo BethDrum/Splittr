@@ -103,8 +103,10 @@ export default function shareReciept(){
 
     //function to add the service charge
     const addService = () => {
-        console.log(serviceCharge);
-        //check if 0
+        //haptic feedback
+        Haptics.notificationAsync(
+            Haptics.NotificationFeedbackType.Success
+        )
         if (serviceCharge === 0) return;
 
         const splitAmount = (roundToTwo(serviceCharge / lengthOfTotal));
@@ -116,6 +118,10 @@ export default function shareReciept(){
 
     //to share the data
     const onShare = async () => {
+        //haptic feedback
+        Haptics.notificationAsync(
+            Haptics.NotificationFeedbackType.Success
+        )
         try {
             //message to send, includes all data for the receipt
             const result = await Share.share({
@@ -131,6 +137,10 @@ export default function shareReciept(){
 
     //save information to local storage device
     const saveData = async () => {
+        //haptic feedback
+        Haptics.notificationAsync(
+            Haptics.NotificationFeedbackType.Success
+        )
         //initialise object to store all info in
         const allData = {
             id: newId,
@@ -162,6 +172,10 @@ export default function shareReciept(){
 
     //option to delete the saved data
     const deleteData = async () => {
+        //haptic feedback
+        Haptics.notificationAsync(
+            Haptics.NotificationFeedbackType.Warning
+        )
         try{
             //get in all reciepts
             const tempAllReciepts = await AsyncStorage.getItem('allReciepts');
