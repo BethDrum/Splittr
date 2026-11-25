@@ -35,6 +35,18 @@ export default function viewReciept() {
   const [text, setText] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null);
 
+  //to format cost
+  const formatCost = (value: string | number): string => {
+    // remove everything except digits and decimal point
+    const cleaned = String(value).replace(/[^\d.]/g, '');
+    const num = parseFloat(cleaned);
+
+    if (isNaN(num)) {
+      return '£0.00';
+    }
+    return `£${num.toFixed(2)}`;
+  };
+
   //get receipt from camera or image library and crop
   const getPhoto = async () => {
     //ensure permission granted
@@ -223,12 +235,23 @@ export default function viewReciept() {
       Haptics.NotificationFeedbackType.Success
     )
 
+    //check for valid cost
+    const numericCost = parseFloat(
+    cost.replace(/[^\d.]/g, '')
+    );
+
+    if (isNaN(numericCost) || numericCost < 0) {
+      Alert.alert('Please enter a valid cost');
+      return;
+    }
+
     //find selected item and update food & cost to new
-    setRecieptItems(current => current.map(item => item.id === editingId ? {
+    setRecieptItems(current => current.map(item => item.id === editingId ? { 
       ...item,
-      food: text,
-      cost: `£${cost}`,
-    }: item));
+      food: text.trim(),
+      cost: formatCost(cost),
+    }
+  : item));
 
     //set relevent values to be ready for another edit
     setModalVisible(false);
@@ -239,13 +262,24 @@ export default function viewReciept() {
 
   //add a new block
   const addNew = (newName: string, newCost: number) => {
-    //ensure cost is formatted
-    const alteredCost = String(`£${newCost}`)
-    //take in information
-    const info = {id: Math.random().toString(), food: newName, cost: alteredCost}
+    //ensure cost is formatted and take in info
+    const info = {
+      id: Math.random().toString(),
+      food: newName.trim(),
+      cost: formatCost(newCost),
+    };
 
     //add to reciept items
     setRecieptItems(prev => [...prev, info])
+  }
+
+  //to add haptic to theme change
+  const handleThemeToggle = () => {
+    Haptics.notificationAsync(
+      Haptics.NotificationFeedbackType.Success
+    );
+
+    toggleTheme();
   }
 
   //navigate to split reciept screen with information
@@ -277,7 +311,7 @@ export default function viewReciept() {
   return (
     <View style={styles.main}>
       {/* alter theme switch */}
-      <Pressable onPress={toggleTheme} style={styles.imageSec}>
+      <Pressable onPress={handleThemeToggle} style={styles.imageSec}>
         <Image style={styles.image} source={icon} />
         <Text style={styles.note}>   Change theme</Text>
       </Pressable> 

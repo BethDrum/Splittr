@@ -89,8 +89,10 @@ export default function App() {
       Haptics.NotificationFeedbackType.Success
     )
 
-    //current cost + total of that droppable number to keep continuous total
-    total.current[dropNumber] = total.current[dropNumber] + parseFloat(items[index].cost.substring(1));
+    //current cost + total of that droppable number to keep continuous total - ensure input is formatted as expected
+    const itemCost = parseFloat(items[index].cost.replace(/[^\d.]/g, ''));
+    total.current[dropNumber] += itemCost;
+
     //update index
     setIndex(current => current + 1);
 
@@ -208,6 +210,15 @@ export default function App() {
   </Droppable>
   )
 
+  //to add haptic to theme change
+  const handleThemeToggle = () => {
+    Haptics.notificationAsync(
+      Haptics.NotificationFeedbackType.Success
+    );
+
+    toggleTheme();
+  }
+
   //go to the share page and send total values
   const goToShareScreen = () => {
     //haptic feedback
@@ -226,7 +237,7 @@ export default function App() {
   return (
     <GestureHandlerRootView>
       {/* alter theme switch */}
-      <Pressable onPress={toggleTheme} style={styles.imageSec}>
+      <Pressable onPress={handleThemeToggle} style={styles.imageSec}>
         <Image style={styles.image} source={icon} />
       </Pressable>
       <Text style={styles.primaryText}>Drag the item to the person to assign it too</Text>

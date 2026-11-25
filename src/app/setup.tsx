@@ -119,6 +119,14 @@ export default function Setup() {
       ]);
   }
 
+  //to add haptic to theme change
+  const handleThemeToggle = () => {
+    Haptics.notificationAsync(
+    Haptics.NotificationFeedbackType.Success
+    );
+
+    toggleTheme();
+  }
     
 
   //store data and go to viewReciept.tsx
@@ -164,7 +172,7 @@ export default function Setup() {
   return (
     <View style={styles.container}>
       {/* alter theme switch */}
-      <Pressable onPress={toggleTheme} style={styles.imageSec}>
+      <Pressable onPress={handleThemeToggle} style={styles.imageSec}>
         <Image style={styles.image} source={icon} />
         <Text style={styles.note}>   Change theme</Text>
       </Pressable> 

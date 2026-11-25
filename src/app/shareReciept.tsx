@@ -126,8 +126,12 @@ export default function shareReciept(){
             //message to send, includes all data for the receipt
             const result = await Share.share({
             message:
-            'The split reciept is as follows: \n' +
-            modifiedItems.map((amount, index) => `Name: £${amount}`).join('\n')
+            `${name}\n${date}\n\n` +
+            'The split receipt is as follows:\n\n' +
+            modifiedItems.map((amount, index) =>
+                `${people[index]?.name ?? 'Unknown'}: £${amount.toFixed(2)}`
+            )
+            .join('\n')
         });
 
         } catch (error: any) {
@@ -193,6 +197,15 @@ export default function shareReciept(){
         }
     };
 
+    //to add haptic to theme change
+    const handleThemeToggle = () => {
+        Haptics.notificationAsync(
+            Haptics.NotificationFeedbackType.Success
+        );
+
+        toggleTheme();
+    }
+
     const goToHome = () => {
         //haptic feedback
         Haptics.notificationAsync(
@@ -228,7 +241,7 @@ export default function shareReciept(){
         //display all persons data in the style of a reciept
         <View style={styles.main}>
             {/* alter theme switch */}
-            <Pressable onPress={toggleTheme} style={styles.imageSec}>
+            <Pressable onPress={handleThemeToggle} style={styles.imageSec}>
                 <Image style={styles.image} source={icon} />
                 <Text style={styles.note}>   Change theme</Text>
             </Pressable> 

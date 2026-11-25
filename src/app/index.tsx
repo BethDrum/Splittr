@@ -65,6 +65,15 @@ export default function Index() {
     router.push({pathname: '/shareReciept', params: {mode: 'saved', receiptId: id}})
   }
 
+  //to add haptic to theme change
+  const handleThemeToggle = () => {
+    Haptics.notificationAsync(
+    Haptics.NotificationFeedbackType.Success
+    );
+
+    toggleTheme();
+  }
+
   //move to setUp.tsx page
   const goToSetUp = () => {
     //haptic feedback
@@ -83,7 +92,7 @@ export default function Index() {
   return (
     <View style={styles.container}>
       {/* alter theme switch */}
-      <Pressable onPress={toggleTheme} style={styles.imageSec}>
+      <Pressable onPress={handleThemeToggle} style={styles.imageSec}>
         <Image style={styles.image} source={icon} />
         <Text style={styles.note}>   Change theme</Text>
       </Pressable> 
